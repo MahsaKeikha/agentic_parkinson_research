@@ -1,0 +1,1 @@
+{"type":"object","required":["research_question"],"properties":{"research_question":{"type":"string"},"evidence":{"type":"array"},"limitations":{"type":"array"}}}
