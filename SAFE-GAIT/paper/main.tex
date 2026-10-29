@@ -33,6 +33,12 @@ Magnitude + abstention & --- & 0/28\\
 The magnitude-only model produced six unmatched alerts (9.03 per recorded hour), versus five (7.52/hour) after abstention at selected source-retention settings. No FoG episodes were recovered. Pooled calibration flagged 6/9 target participants; individual-participant calibration flagged 1/9.
 \section{Limitations and Ethics}
 The FoG-STAR subset contains only nine sensor participant IDs and was previously inspected. Target sensor position, activity context and annotation differ from Daphnet. Calibration statistics have no formal finite-sample guarantee, and event matching uses a zero-tolerance convention. This study is neither prospective nor clinically validated. Results should not be used to automate care.
+\section{Event-Timing Protocol Sensitivity}
+The existing historical replay models an emitted positive decision as an alert interval lasting one second. That fixed hold duration is an assumption and not a measured clinical alarm persistence. We therefore provide a separately testable protocol-sensitivity analysis varying hypothetical alert hold duration (instantaneous, 0.25 s and 1 s) and event-matching tolerance (0, 0.5 and 1 s). This design preserves decision causality by assigning every decision to the completion of its feature window, and it forbids retrospective attribution of predictions to an earlier time. Results for the full-v3 release are pending. Consequently, the exploratory 0/28 count must be interpreted under the specific historical replay assumptions and not as a clinically validated zero-detection estimate.
+
+\section{Pre-submission Validation Gates}
+The complete v3 manifest and expert episode conventions, subject-independent reruns, comparison against strong frequency-based and external-validation baselines, subject-clustered uncertainty, and final citation metadata must be checked before submission. These gates are documented in \texttt{REVIEWER\_READINESS\_GATE.md}. The historical nine-participant subset is not an untouched external test cohort and must not be passed off as the full published dataset.
+
 \section{Conclusion}
 Simple out-of-distribution warning and abstention mechanisms did not rescue a failed transfer model. Calibration units, event sensitivity, and false-alert burden must be reported jointly before reliability claims.
 \bibliographystyle{ACM-Reference-Format}
