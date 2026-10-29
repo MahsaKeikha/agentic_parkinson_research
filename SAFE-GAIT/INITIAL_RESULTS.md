@@ -1,5 +1,7 @@
 # Exploratory FoG-STAR Baseline Results
 
+> **CORRECTION (29 October 2026): SUPERSEDED.** The earlier 5,326-window, 22-participant figures were produced under a permissive timestamp-gap rule and must not be cited. Direct inspection of the MD5-verified Zenodo v2 `sensor_data.csv` shows **143,530 rows and only nine distinct `subjectID` values (1-8 and 10)**; the separate clinical metadata contains 22 rows. A stricter timestamp-aware reanalysis is being generated. The original figures below are retained only as an audit trail. The dataset provider's stated number of participants must not be confused with the number represented in this particular sensor file.
+
 **Generated 28 October 2026 (Pacific Time).** These are preliminary measurements from real data, not final manuscript claims.
 
 ## Provenance and reproducibility
