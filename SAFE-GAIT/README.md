@@ -64,6 +64,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Initial event annotation audit: 28 episodes across 5 positive participants; see `EVENT_AUDIT.md`
 - [x] Independent Daphnet event audit: 237 events across 8 positive participants; see `EXTERNAL_DATA_AUDIT.md`
 - [x] First raw-event baseline: 14/28 detected episodes, 56 unmatched alert runs; see `EVENT_BASELINE_RESULTS.md`
+- [x] Exploratory burst-merging ablation: 36 unmatched runs at the same 14/28 detected episodes; see `ALERT_MERGING_ABLATION.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
