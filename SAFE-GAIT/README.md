@@ -7,6 +7,10 @@
 
 This subproject supports the proposed ACM TRUST 2027 REED-AI manuscript. It is distinct from the parent repository's agentic literature-research architecture.
 
+**Current paper draft:** [MANUSCRIPT_CONSOLIDATED.md](MANUSCRIPT_CONSOLIDATED.md).
+The older `MANUSCRIPT_WORKING_DRAFT.md` is an incremental research log and is
+not the recommended submission manuscript.
+
 ## Research question
 
 Can signal-quality-aware uncertainty calibration and an abstaining decision policy reduce errors among automated FoG monitoring decisions without sacrificing useful detection coverage?
