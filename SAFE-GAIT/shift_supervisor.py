@@ -65,6 +65,31 @@ def evaluate_gate(labels, probabilities, accept):
     }
 
 
+def participant_bootstrap(labels, probabilities, subjects, repetitions=1000, seed=2027):
+    """Cluster bootstrap over participants, never over overlapping windows."""
+    labels = np.asarray(labels, dtype=int)
+    probabilities = np.asarray(probabilities, dtype=float)
+    subjects = np.asarray(subjects)
+    if not (len(labels) == len(probabilities) == len(subjects)) or not len(labels):
+        raise ValueError("Nonempty arrays of equal length required")
+    unique = np.unique(subjects)
+    if len(unique) < 2:
+        raise ValueError("At least two participants required")
+    group_indices = {sid: np.flatnonzero(subjects == sid) for sid in unique}
+    rng = np.random.default_rng(seed)
+    estimates = []
+    for _ in range(repetitions):
+        chosen = rng.choice(unique, size=len(unique), replace=True)
+        indices = np.concatenate([group_indices[sid] for sid in chosen])
+        if len(np.unique(labels[indices])) == 2:
+            estimates.append(metrics(labels[indices], probabilities[indices])["auroc"])
+    return {"participants": int(len(unique)), "valid_resamples": int(len(estimates)),
+            "requested_resamples": int(repetitions),
+            "auroc_percentile_95_interval": list(map(float, np.quantile(estimates, [0.025, 0.975])))
+            if estimates else None,
+            "note": "Cluster-resampling descriptive uncertainty; not independent external validation"}
+
+
 def run(source_data, target_data):
     xs, ys, _ = source_data
     xt, yt, gt = target_data
@@ -88,6 +113,7 @@ def run(source_data, target_data):
         "protocol": "source-only robust distances; fixed 0.5 classifier threshold; no target tuning",
         "warning": "Window-level selective metrics exclude rejected windows and cannot establish safe event-level alerts",
         "target_base": metrics(yt, prediction),
+        "target_participant_bootstrap": participant_bootstrap(yt, prediction, gt),
         "policies": policies}
 
 
