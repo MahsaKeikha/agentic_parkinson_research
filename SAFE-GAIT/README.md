@@ -22,6 +22,8 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `supervisor.py`: first three-action, validation-thresholded, quality-aware supervisory ablation.
 - `constrained.py`: event-level threshold search with explicit infeasibility when validation safety targets cannot be met.
 - `cross_dataset.py`: Daphnet-to-FoG-STAR accelerometer feature alignment and untouched-target shift test.
+- `cross_dataset_invariant.py`: post-hoc rotation-invariant transfer comparison and label-free shift audit.
+- `shift_supervisor.py`: exploratory source-only magnitude-distance abstention with explicit missed-positive accounting.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -71,6 +73,8 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] First supervisor pilot: higher event sensitivity but unacceptable false-alert burden; see `SUPERVISOR_PILOT.md`
 - [x] Event-constrained feasibility pilot: only one of five folds feasible; see `CONSTRAINED_EVENT_PILOT.md`
 - [x] Daphnet-to-FoG-STAR shift test: AUROC 0.349 and 0% target sensitivity at fixed threshold; see `CROSS_DATASET_RESULTS.md`
+- [x] Orientation-invariant transfer follow-up: source CV improved but target failed; see `ORIENTATION_INVARIANT_RESULTS.md`
+- [x] Source-only distance-gate experiment: target shift largely undetected; see `SHIFT_SUPERVISOR_RESULTS.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
