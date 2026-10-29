@@ -28,6 +28,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `cross_dataset_events.py`: source-trained end-of-window event-level replay on raw FoG-STAR episodes, with and without source-only abstention.
 - `score_drift.py`: label-free descriptive comparison of model score distributions across source and target (not a calibrated alarm).
 - `calibrated_drift.py`: preliminary participant-held-out source cutoff for a subject-level score-distribution warning; calibration is not patient-level valid.
+- `participant_drift.py`: matched single-person source calibration correcting the pooled-fold unit mismatch; warning coverage fell from 6/9 to 1/9.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -82,6 +83,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Cross-dataset event replay: 0/28 episodes detected, with 5 to 6 false alert runs; see `CROSS_DATASET_EVENT_RESULTS.md`
 - [x] Label-free score-drift diagnostic: ECDF distance 0.144, without an alarm validity claim; see `SCORE_DRIFT_RESULTS.md`
 - [x] Source-fold score-warning pilot: 6/9 FoG-STAR participants flagged; caveats in `CALIBRATED_DRIFT_RESULTS.md`
+- [x] Matched-unit drift sensitivity analysis: only 1/9 target participants flagged; see `PARTICIPANT_DRIFT_RESULTS.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
