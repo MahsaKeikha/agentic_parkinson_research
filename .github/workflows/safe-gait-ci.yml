@@ -32,3 +32,19 @@ jobs:
             echo 'ERROR: Raw dataset path tracked' >&2
             exit 1
           fi
+  manuscript-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile ACM review manuscript
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SAFE-GAIT/paper
+          latexmk_shell_escape: false
+      - name: Upload draft PDF for visual inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: SAFE-GAIT-ACM-draft
+          path: SAFE-GAIT/paper/main.pdf
+          if-no-files-found: error
