@@ -17,7 +17,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
 
-from events import episodes, event_summary
+from events import episodes, event_summary, merge_close_alerts
 
 
 def prepare(df, hz=60, window_seconds=2, stride_seconds=1):
@@ -75,7 +75,8 @@ def prepare(df, hz=60, window_seconds=2, stride_seconds=1):
             np.asarray(window_times), np.asarray(block_index), blocks)
 
 
-def evaluate_fold(test_indices, probabilities, times, block_index, blocks, threshold=0.5, hop_seconds=1):
+def evaluate_fold(test_indices, probabilities, times, block_index, blocks,
+                  threshold=0.5, hop_seconds=1, merge_gap_seconds=0.0):
     result = {"reference_episodes": 0, "alerts": 0, "event_tp": 0, "event_fn": 0,
               "event_fp": 0, "exposure_seconds": 0.0, "latencies": []}
     for bid in np.unique(block_index[test_indices]):
@@ -84,6 +85,7 @@ def evaluate_fold(test_indices, probabilities, times, block_index, blocks, thres
         alert_events = episodes(times[ordered],
                                 (probabilities[ordered] >= threshold).astype(float),
                                 sample_period=hop_seconds)
+        alert_events = merge_close_alerts(alert_events, merge_gap_seconds)
         annotated = blocks[int(bid)]
         r = event_summary(annotated["reference"], alert_events,
                           recorded_seconds=annotated["exposure_seconds"])
@@ -116,8 +118,10 @@ def run(df):
             HistGradientBoostingClassifier(max_iter=120, learning_rate=0.05, random_state=17))
         model.fit(x[training], y[training])
         scores[test] = model.predict_proba(x[test])[:, 1]
-        r = evaluate_fold(test, scores, times, bids, blocks)
-        folds.append({"fold": fold, "subjects": [int(n) for n in np.unique(group[test])], **r})
+        raw = evaluate_fold(test, scores, times, bids, blocks, merge_gap_seconds=0.0)
+        merged = evaluate_fold(test, scores, times, bids, blocks, merge_gap_seconds=2.0)
+        folds.append({"fold": fold, "subjects": [int(n) for n in np.unique(group[test])],
+                      "unmerged": raw, "merged_2s": merged})
     return {"status": "exploratory fixed-threshold event baseline; source-order segmentation",
             "window_count": len(y), "participant_count": len(np.unique(group)), "folds": folds}
 
