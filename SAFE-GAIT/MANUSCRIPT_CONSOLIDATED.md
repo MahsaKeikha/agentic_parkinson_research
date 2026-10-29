@@ -60,6 +60,23 @@ safety-guaranteed algorithm. The contributions are:
 
 ## 2. Data and scope
 
+### Prior work and precise research gap
+
+Wearable FoG monitoring has an established history beginning with early
+wearable detection and cueing systems, including Bächlin and colleagues'
+2010 work. A 2025 study directly investigated sensor placement, activity,
+dataset choice and external FoG event detection, while a 2026 cross-dataset
+study reported a pronounced laboratory-to-daily-living performance gap.
+Consequently, **cross-dataset failure itself is not our novelty claim**.
+In trustworthy ML, reject-option classification and model-output-based
+deployment suitability checks are also established, as illustrated by
+SelectiveNet (2019) and the suitability-filter framework (2025). Our narrower
+contribution is the combined operational audit of missed FoG episodes,
+abstention, alert burden and calibration-unit sensitivity under a clearly
+documented failure case. See `LITERATURE_NOVELTY_AUDIT.md` for primary-source
+links and the ongoing full bibliography review.
+
+
 We use Daphnet wearable FoG recordings as the training source: ten
 participants and 17 recordings, with trunk three-axis acceleration converted
 from mg to g. Samples annotated as outside the experiment are not treated
