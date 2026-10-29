@@ -1,5 +1,7 @@
 # Pilot Selective Prediction Results
 
+> **CORRECTION (29 October 2026): REINTERPRETATION REQUIRED.** A direct source audit finds only nine distinct participant IDs in the downloaded, checksum-verified sensor CSV, while 22 occur in the clinical metadata. The figures below are an exploratory run on the restricted eligible cohort after strict timestamp segmentation; they do **not** constitute a 22-participant sensor experiment. The text describing 5,326 windows from 22 people is superseded. Before any manuscript use, reevaluate the validity and representativeness of this nine-participant subset and verify dataset release completeness with the provider.
+
 **Exploratory experiment, 28 October 2026 Pacific Time. Not suitable for a clinical performance claim.**
 
 ## Method
