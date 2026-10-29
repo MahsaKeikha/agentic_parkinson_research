@@ -5,6 +5,7 @@
 ## Verified local sources
 
 - Zenodo v2 `sensor_data.csv`: 119,629,580 bytes, MD5 `952a37ab147da35e6d4e7a1e9bac44cb` (matches published listing).
+- Zenodo v3 (https://zenodo.org/records/17838806) is the latest record, and **lists the same sensor file MD5**. Thus upgrading from v2 to v3 does not resolve the nine-versus-22 participant discrepancy; v3 updates accompanying documentation and analysis files.
 - Sensor CSV rows: **143,530**.
 - Distinct sensor `subjectID` values: **1, 2, 3, 4, 5, 6, 7, 8, 10**, only **9** participant IDs.
 - Accompanying `clinical_data.csv`: **22** participant metadata rows. The publication's overall study cohort size must not be substituted for the cohort present in this particular sensor file.
