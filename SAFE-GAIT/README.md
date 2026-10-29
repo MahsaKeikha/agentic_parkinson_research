@@ -1,7 +1,7 @@
 # SAFE-GAIT
 
 **Risk-aware, explainable freezing-of-gait detection for Parkinson's research**  
-**Research status: protocol and baseline implementation; no empirical result claimed.**
+**Research status: exploratory public-data experiments completed; no clinical validity claimed.**
 
 **Data audit alert:** The checksum-verified FoG-STAR v2 sensor CSV currently contains 9 participant IDs, whereas the accompanying clinical file lists 22. Earlier 22-participant baseline figures have been marked superseded. Do not cite results until the release discrepancy has been resolved.
 
@@ -89,7 +89,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 
 ## Scientific integrity
 
-The source data has not yet been run through this implementation. Results, improvement claims, statistical significance and clinical utility are unknown. Validate event annotation conventions, sensor units, sample timing and fold distributions before use. Controlled movement datasets do not establish reliable autonomous home care.
+The implementation has been run on public FoG-STAR and Daphnet recordings, and exploratory outcomes are documented with explicit failures. No clinical utility, prospective validation, or statistically established safety improvement is claimed. The verified FoG-STAR sensor file contains only nine participant IDs despite 22 clinical-metadata rows. Validate dataset provenance, event conventions, sensor units, timing and fold distributions before further use. Controlled movement datasets do not establish reliable autonomous home care.
 
 ## Citation and provenance
 
