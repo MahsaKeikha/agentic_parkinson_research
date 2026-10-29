@@ -6,6 +6,16 @@
 
 ## Abstract (working version)
 
+**Additional exploratory failure analysis, 29 October 2026:** A source-only
+robust magnitude-distance gate calibrated to retain 80% of Daphnet windows
+retained 95.1% of FoG-STAR windows; a gate calibrated to 90% source retention
+retained 99.2% of target windows. Neither setting detected any of the 581
+positive target windows with the fixed 0.5 classifier decision threshold.
+Thus, this simple out-of-distribution mechanism did not identify the model's
+severe cross-dataset failure. These are overlapping-window diagnostics, not
+event-level safety guarantees; details in `SHIFT_SUPERVISOR_RESULTS.md`.
+
+
 Reliable freezing-of-gait (FoG) detection from wearable sensors is challenging because motor patterns differ between people with Parkinson's disease and recorded monitoring conditions. Predictive confidence is frequently interpreted as actionable certainty despite potential distribution shift. We investigate risk-aware selective prediction for FoG classification using wearable inertial data. Our evaluation protocol separates participants for model training, probability calibration and outer testing, and reports not only prediction accuracy but also the coverage, class-specific retention and error of automated decisions. A preliminary nine-participant subset of the FoG-STAR sensor file illustrates a discrepancy between discrimination and fixed-threshold sensitivity and exposes unstable calibration transfer across participant groups. Rather than assuming that uncertainty-based abstention improves safety, we quantify where its error reductions are offset by missed positive episodes. We outline a quality-aware supervisory architecture that explicitly accounts for such failure modes. This work aims to establish reproducible evaluation criteria for trustworthy FoG monitoring. The proposed supervisory method and external evaluation remain under development.
 
 **Keywords:** Parkinson's disease, freezing of gait, trustworthy AI, wearable sensing, probability calibration, selective prediction, risk-aware control.
