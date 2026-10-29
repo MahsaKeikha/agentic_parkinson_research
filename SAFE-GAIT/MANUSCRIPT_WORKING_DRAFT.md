@@ -15,6 +15,12 @@ Thus, this simple out-of-distribution mechanism did not identify the model's
 severe cross-dataset failure. These are overlapping-window diagnostics, not
 event-level safety guarantees; details in `SHIFT_SUPERVISOR_RESULTS.md`.
 
+When uncertainty was resampled at the participant rather than window level,
+the FoG-STAR AUROC cluster-bootstrap percentile interval was 0.241 to 0.554
+(998 evaluable of 1,000 resamples from nine participants). The interval
+underscores limited precision and should not be construed as confirmatory
+external validation.
+
 
 Reliable freezing-of-gait (FoG) detection from wearable sensors is challenging because motor patterns differ between people with Parkinson's disease and recorded monitoring conditions. Predictive confidence is frequently interpreted as actionable certainty despite potential distribution shift. We investigate risk-aware selective prediction for FoG classification using wearable inertial data. Our evaluation protocol separates participants for model training, probability calibration and outer testing, and reports not only prediction accuracy but also the coverage, class-specific retention and error of automated decisions. A preliminary nine-participant subset of the FoG-STAR sensor file illustrates a discrepancy between discrimination and fixed-threshold sensitivity and exposes unstable calibration transfer across participant groups. Rather than assuming that uncertainty-based abstention improves safety, we quantify where its error reductions are offset by missed positive episodes. We outline a quality-aware supervisory architecture that explicitly accounts for such failure modes. This work aims to establish reproducible evaluation criteria for trustworthy FoG monitoring. The proposed supervisory method and external evaluation remain under development.
 
