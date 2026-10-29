@@ -15,6 +15,9 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 
 - `baseline.py`: FoG-STAR CSV audit, deterministic window features and participant-grouped baseline validation.
 - `selective.py`: nested participant separation for model fitting, Platt-style calibration and selective prediction.
+- `events.py`: explicit one-to-one event matching, latency and false-alert metrics.
+- `event_audit.py`: raw-annotation episode counts with source-order and timestamp-gap controls.
+- `daphnet_audit.py`: independent Daphnet recording and episode audit with explicit non-experiment label exclusion.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -35,6 +38,7 @@ Download FoG-STAR from the authors' dataset release at https://zenodo.org/record
 ```bash
 python baseline.py --sensor-data /path/to/sensor_data.csv --out results
 python selective.py --sensor-data /path/to/sensor_data.csv --out results
+python event_audit.py --sensor-data /path/to/sensor_data.csv --out results
 ```
 
 The result is `results/baseline_grouped_cv.json`. This is a **window-level, uncalibrated baseline**, not the SAFE-GAIT safety supervisor or an event-level clinical result.
@@ -55,6 +59,8 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Dataset download, MD5 verification and preliminary schema inspection
 - [x] Initial grouped baseline, reported as exploratory in `INITIAL_RESULTS.md`
 - [ ] Detailed annotation and event audit
+- [x] Initial event annotation audit: 28 episodes across 5 positive participants; see `EVENT_AUDIT.md`
+- [x] Independent Daphnet event audit: 237 events across 8 positive participants; see `EXTERNAL_DATA_AUDIT.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
