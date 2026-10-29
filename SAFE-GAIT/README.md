@@ -3,6 +3,8 @@
 **Risk-aware, explainable freezing-of-gait detection for Parkinson's research**  
 **Research status: protocol and baseline implementation; no empirical result claimed.**
 
+**Data audit alert:** The checksum-verified FoG-STAR v2 sensor CSV currently contains 9 participant IDs, whereas the accompanying clinical file lists 22. Earlier 22-participant baseline figures have been marked superseded. Do not cite results until the release discrepancy has been resolved.
+
 This subproject supports the proposed ACM TRUST 2027 REED-AI manuscript. It is distinct from the parent repository's agentic literature-research architecture.
 
 ## Research question
