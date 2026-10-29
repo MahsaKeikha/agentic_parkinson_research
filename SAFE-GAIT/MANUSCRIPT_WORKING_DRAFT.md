@@ -6,6 +6,18 @@
 
 ## Abstract (working version)
 
+**Retrospective cross-dataset episode audit:** On 2,392.15 seconds of
+annotated FoG-STAR recordings containing 28 freezing episodes, the
+Daphnet-trained magnitude classifier detected zero reference episodes and
+generated six unmatched alert runs (9.03 per hour). Source-only distance
+abstention at 80% and 90% Daphnet retention reduced unmatched runs to five
+(7.52 per hour) but still missed all 28 episodes. Decisions were timestamped
+at the completion of two-second windows; no matching tolerance or alert
+merging was applied. These exploratory findings demonstrate that a marginal
+reduction in false alerts does not imply safety when event sensitivity
+remains zero. See `CROSS_DATASET_EVENT_RESULTS.md`.
+
+
 **Additional exploratory failure analysis, 29 October 2026:** A source-only
 robust magnitude-distance gate calibrated to retain 80% of Daphnet windows
 retained 95.1% of FoG-STAR windows; a gate calibrated to 90% source retention
