@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from run_verified_v3 import plan, file_sha256, write_manifest
+from run_verified_v3 import plan, file_sha256, write_manifest, require_clean_outputs
 
 class TestFullV3Gate(unittest.TestCase):
     def setUp(self):
@@ -34,5 +34,15 @@ class TestFullV3Gate(unittest.TestCase):
         path=self.folder/"run.json"
         write_manifest(path, {"status":"failed","failure":"example"})
         self.assertEqual(json.loads(path.read_text())["status"],"failed")
+    def test_stale_output_fails_closed(self):
+        out=self.folder/"results"
+        out.mkdir()
+        (out/"cross_dataset_shift.json").write_text('{"old":true}')
+        with self.assertRaises(FileExistsError):
+            require_clean_outputs(out,["cross_dataset.py"])
+    def test_empty_output_directory_is_accepted(self):
+        out=self.folder/"fresh"
+        out.mkdir()
+        require_clean_outputs(out,["cross_dataset.py"])
 if __name__=="__main__":
     unittest.main()
