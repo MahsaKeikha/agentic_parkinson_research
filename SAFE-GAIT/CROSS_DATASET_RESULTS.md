@@ -38,6 +38,9 @@ Do **not** retune the model, reverse scores, recalibrate using FoG-STAR outcomes
 
 ## Next analyses
 
+An exploratory magnitude-only and label-free feature-shift follow-up has now
+been completed. See [ORIENTATION_INVARIANT_RESULTS.md](ORIENTATION_INVARIANT_RESULTS.md).
+
 1. Compare axis-specific versus magnitude-only orientation-invariant features under predefined source-only choices.
 2. Quantify feature distribution shift and sensor signal-quality mismatch without target labels.
 3. Examine medication/activity and protocol comparability and whether acceleration magnitudes reflect equivalent physical axes.
