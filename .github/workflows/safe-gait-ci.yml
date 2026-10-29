@@ -20,6 +20,9 @@ jobs:
       - name: Run all research unit tests
         working-directory: SAFE-GAIT
         run: python -m unittest discover -s . -p 'test_*.py' -v
+      - name: Run manuscript preflight unit tests explicitly
+        working-directory: SAFE-GAIT/paper
+        run: python -m unittest discover -s . -p 'test_*.py' -v
       - name: Run paper preflight (draft mode)
         working-directory: SAFE-GAIT
         run: python paper/check_submission.py --tex paper/main.tex --bib paper/references.bib
