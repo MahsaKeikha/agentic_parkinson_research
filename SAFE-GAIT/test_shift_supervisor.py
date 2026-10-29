@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from shift_supervisor import SourceDistanceGate, evaluate_gate
+from shift_supervisor import SourceDistanceGate, evaluate_gate, participant_bootstrap
 
 
 class TestShiftSupervisor(unittest.TestCase):
@@ -22,6 +22,16 @@ class TestShiftSupervisor(unittest.TestCase):
     def test_invalid_fraction(self):
         with self.assertRaises(ValueError):
             SourceDistanceGate(1.1)
+
+    def test_participant_bootstrap_is_repeatable(self):
+        subjects = np.repeat(np.arange(4), 6)
+        labels = np.tile([0, 0, 0, 1, 1, 1], 4)
+        predictions = np.tile([0.1, 0.4, 0.3, 0.8, 0.6, 0.9], 4)
+        a = participant_bootstrap(labels, predictions, subjects, repetitions=40, seed=5)
+        b = participant_bootstrap(labels, predictions, subjects, repetitions=40, seed=5)
+        self.assertEqual(a, b)
+        self.assertEqual(a["participants"], 4)
+        self.assertEqual(a["valid_resamples"], 40)
 
 
 if __name__ == "__main__":
