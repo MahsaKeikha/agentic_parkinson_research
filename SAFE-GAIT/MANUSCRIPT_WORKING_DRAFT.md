@@ -80,6 +80,16 @@ To probe cross-dataset shift without target label tuning, a Daphnet-trained trun
 
 ## 6. Discussion and Limitations
 
+**Source-calibrated score-warning pilot:** Using the empirical 95th percentile
+of five Daphnet participant-held-out score ECDF distances yielded a cutoff
+of 0.1871. Six of nine FoG-STAR participants exceeded the cutoff. However,
+source calibration used pooled held-out folds whereas the target application
+used individual participant scores. Their comparison is not distributionally
+matched; a nominal 95th percentile from only five folds does not confer a
+valid patient-level error rate. This result is a post-hoc hypothesis-generating
+pilot, not a validated shift alarm. See `CALIBRATED_DRIFT_RESULTS.md`.
+
+
 **Label-free output-shift follow-up:** The Daphnet-fitted magnitude classifier
 assigned mean predicted FoG probabilities of 0.0955 to its training windows
 and 0.0584 to FoG-STAR windows. The score ECDF sup distance was 0.1437.
