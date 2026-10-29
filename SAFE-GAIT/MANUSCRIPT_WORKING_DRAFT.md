@@ -80,6 +80,17 @@ To probe cross-dataset shift without target label tuning, a Daphnet-trained trun
 
 ## 6. Discussion and Limitations
 
+**Correction to score-warning calibration unit:** A matched participant-level
+source-only analysis, using ten leave-one-person-out Daphnet comparisons,
+produced an ECDF score-distance warning cutoff of 0.3838. Only one of nine
+FoG-STAR participants exceeded this cutoff, compared with six of nine in
+the earlier pooled-held-out-fold pilot. The result demonstrates sensitivity
+of an apparent warning method to the calibration unit. It does not validate
+an alarm, as source participant counts are small, score references are
+in-sample, source and target sampling conditions differ, and the target
+has already been inspected. See `PARTICIPANT_DRIFT_RESULTS.md`.
+
+
 **Source-calibrated score-warning pilot:** Using the empirical 95th percentile
 of five Daphnet participant-held-out score ECDF distances yielded a cutoff
 of 0.1871. Six of nine FoG-STAR participants exceeded the cutoff. However,
