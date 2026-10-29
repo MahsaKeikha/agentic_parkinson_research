@@ -12,6 +12,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 ## What is implemented
 
 - `baseline.py`: FoG-STAR CSV audit, deterministic window features and participant-grouped baseline validation.
+- `selective.py`: nested participant separation for model fitting, Platt-style calibration and selective prediction.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -31,6 +32,7 @@ Download FoG-STAR from the authors' dataset release at https://zenodo.org/record
 
 ```bash
 python baseline.py --sensor-data /path/to/sensor_data.csv --out results
+python selective.py --sensor-data /path/to/sensor_data.csv --out results
 ```
 
 The result is `results/baseline_grouped_cv.json`. This is a **window-level, uncalibrated baseline**, not the SAFE-GAIT safety supervisor or an event-level clinical result.
@@ -53,6 +55,8 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [ ] Detailed annotation and event audit
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
+- [x] First calibrated selective benchmark (results pending validation)
+- [x] Pilot selective benchmark reported transparently in `SELECTIVE_RESULTS.md`; safety gains **not** demonstrated
 - [ ] Risk-aware supervisor and ablation study
 - [ ] FoG event metrics and latency
 - [ ] Sensor corruption and cross-domain evaluation
