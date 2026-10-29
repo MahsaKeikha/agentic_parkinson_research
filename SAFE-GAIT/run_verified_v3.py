@@ -5,11 +5,23 @@ units are required. The current classifiers assume timestamps in seconds.
 """
 import argparse
 import json
+import hashlib
+import platform
 import subprocess
 import sys
 from pathlib import Path
 
 from provenance_audit import audit
+
+def file_sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for part in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(part)
+    return digest.hexdigest()
+
+def write_manifest(path, record):
+    path.write_text(json.dumps(record, indent=2), encoding="utf-8")
 
 def plan(report, *, timestamp_unit, source_dir):
     if report.get("status") != "PASS":
@@ -45,17 +57,47 @@ def main():
     if report["status"] != "PASS":
         raise SystemExit("STOP: provenance did not PASS. No experiments run.")
     pipeline=plan(report,timestamp_unit=args.timestamp_unit,source_dir=args.daphnet_dir)
-    manifest={"status":"exploratory_posthoc_full_v3_reanalysis_not_independent",
-              "dataset_verified":"manifest_check.json",
-              "scripts":pipeline,"results":[]}
+    record={"status":"running", "claim_scope":"exploratory_posthoc_full_v3_reanalysis_not_independent",
+            "python":sys.version, "platform":platform.platform(),
+            "sensor_sha256":file_sha256(args.sensor_data),
+            "clinical_sha256":file_sha256(args.clinical_data),
+            "manifest_sha256":file_sha256(args.manifest),
+            "dataset_verified":"manifest_check.json", "scripts":pipeline,
+            "results":[], "failure":None}
+    record_path=args.out/"experiment_run_manifest.json"
+    write_manifest(record_path,record)
     for script in pipeline:
         command=[sys.executable,str(Path(__file__).with_name(script)),
                  "--daphnet-dir",str(args.daphnet_dir.resolve()),
                  "--fogstar-sensor-data",str(args.sensor_data.resolve()),
                  "--out",str(args.out.resolve())]
-        subprocess.run(command,check=True)
-        manifest["results"].append(script)
-    (args.out/"experiment_run_manifest.json").write_text(json.dumps(manifest,indent=2))
+        step={"script":script, "command":command, "status":"running"}
+        record["results"].append(step)
+        write_manifest(record_path,record)
+        try:
+            subprocess.run(command,check=True)
+        except subprocess.CalledProcessError as exc:
+            step["status"]="failed"
+            step["returncode"]=exc.returncode
+            record["failure"]=script
+            record["status"]="failed"
+            write_manifest(record_path,record)
+            raise
+        expected={"cross_dataset.py":"cross_dataset_shift.json",
+                  "cross_dataset_invariant.py":"cross_dataset_invariant.json",
+                  "cross_dataset_events.py":"cross_dataset_events.json"}[script]
+        output=args.out/expected
+        if not output.is_file():
+            step["status"]="failed"
+            record["failure"]=f"{script} produced no {expected}"
+            record["status"]="failed"
+            write_manifest(record_path,record)
+            raise RuntimeError(record["failure"])
+        step.update({"status":"completed", "output":expected,
+                     "output_sha256":file_sha256(output)})
+        write_manifest(record_path,record)
+    record["status"]="completed_exploratory"
+    write_manifest(record_path,record)
     print("Exploratory analysis completed; do not treat results as independent validation.")
 if __name__=="__main__":
     main()
