@@ -26,6 +26,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `shift_supervisor.py`: exploratory source-only magnitude-distance abstention with explicit missed-positive accounting.
 - `shift_supervisor.py` also reports a participant-cluster AUROC bootstrap, avoiding a naive independent-window uncertainty calculation.
 - `cross_dataset_events.py`: source-trained end-of-window event-level replay on raw FoG-STAR episodes, with and without source-only abstention.
+- `score_drift.py`: label-free descriptive comparison of model score distributions across source and target (not a calibrated alarm).
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -78,6 +79,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Orientation-invariant transfer follow-up: source CV improved but target failed; see `ORIENTATION_INVARIANT_RESULTS.md`
 - [x] Source-only distance-gate experiment: target shift largely undetected; see `SHIFT_SUPERVISOR_RESULTS.md`
 - [x] Cross-dataset event replay: 0/28 episodes detected, with 5 to 6 false alert runs; see `CROSS_DATASET_EVENT_RESULTS.md`
+- [x] Label-free score-drift diagnostic: ECDF distance 0.144, without an alarm validity claim; see `SCORE_DRIFT_RESULTS.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
