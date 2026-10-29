@@ -3,7 +3,7 @@ from check_submission import validate
 
 class TestSubmissionPreflight(unittest.TestCase):
     def test_missing_citation_fails(self):
-        r=validate(r"\\cite{unknown}", "@article{known,\n title={Title}\n}")
+        r=validate(r"\cite{unknown}", "@article{known,\n title={Title}\n}")
         self.assertFalse(r["ok"])
     def test_duplicate_key_fails(self):
         r=validate("v3", "@article{a,}\n@article{a,}")
