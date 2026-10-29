@@ -18,6 +18,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `events.py`: explicit one-to-one event matching, latency and false-alert metrics.
 - `event_audit.py`: raw-annotation episode counts with source-order and timestamp-gap controls.
 - `daphnet_audit.py`: independent Daphnet recording and episode audit with explicit non-experiment label exclusion.
+- `event_baseline.py`: model-generated alerts matched against raw annotated episodes in participant-held-out folds.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -39,6 +40,7 @@ Download FoG-STAR from the authors' dataset release at https://zenodo.org/record
 python baseline.py --sensor-data /path/to/sensor_data.csv --out results
 python selective.py --sensor-data /path/to/sensor_data.csv --out results
 python event_audit.py --sensor-data /path/to/sensor_data.csv --out results
+python event_baseline.py --sensor-data /path/to/sensor_data.csv --out results
 ```
 
 The result is `results/baseline_grouped_cv.json`. This is a **window-level, uncalibrated baseline**, not the SAFE-GAIT safety supervisor or an event-level clinical result.
@@ -61,6 +63,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [ ] Detailed annotation and event audit
 - [x] Initial event annotation audit: 28 episodes across 5 positive participants; see `EVENT_AUDIT.md`
 - [x] Independent Daphnet event audit: 237 events across 8 positive participants; see `EXTERNAL_DATA_AUDIT.md`
+- [x] First raw-event baseline: 14/28 detected episodes, 56 unmatched alert runs; see `EVENT_BASELINE_RESULTS.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
