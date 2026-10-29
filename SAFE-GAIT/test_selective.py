@@ -21,6 +21,13 @@ class TestSelectivePolicy(unittest.TestCase):
         cutoff = threshold_for_coverage(scores, 0.6)
         self.assertEqual(cutoff, 0.30)
 
+    def test_class_retention_is_reported(self):
+        y = np.array([1, 1, 0, 0])
+        p = np.array([0.9, 0.6, 0.1, 0.2])
+        metrics = policy_metrics(y, p, np.array([1, 0, 1, 1], dtype=bool))
+        self.assertAlmostEqual(metrics["positive_retention"], 0.5)
+        self.assertAlmostEqual(metrics["negative_retention"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
