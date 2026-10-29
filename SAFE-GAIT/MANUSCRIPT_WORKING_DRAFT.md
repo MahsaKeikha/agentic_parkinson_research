@@ -80,6 +80,15 @@ To probe cross-dataset shift without target label tuning, a Daphnet-trained trun
 
 ## 6. Discussion and Limitations
 
+**Label-free output-shift follow-up:** The Daphnet-fitted magnitude classifier
+assigned mean predicted FoG probabilities of 0.0955 to its training windows
+and 0.0584 to FoG-STAR windows. The score ECDF sup distance was 0.1437.
+Source-score summaries are in-sample, target scores are out-of-sample, and
+overlapping windows are dependent. These descriptive differences might prompt
+additional scrutiny but do not constitute a calibrated failure detector or
+establish any alerting threshold. See `SCORE_DRIFT_RESULTS.md`.
+
+
 The principal pilot finding is a warning about treating confidence-based abstention as inherently beneficial. Interparticipant differences may cause severe miscalibration and asymmetric acceptance of negative versus positive cases. The evaluation is limited by a small patient sample, overlapping correlated windows, artificial task conditions, absence of event-level validation and uncertain cross-dataset compatibility. Event sensitivity, false alarms per hour, timing and quality-aware supervision must be evaluated before deployment claims. Clinical governance, fairness and usability are future research questions, not validated outcomes of this work.
 
 ## 7. Conclusion (provisional)
