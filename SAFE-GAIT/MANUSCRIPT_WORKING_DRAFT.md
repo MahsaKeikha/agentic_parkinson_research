@@ -67,3 +67,17 @@ Preliminary FoG-STAR experiments motivate a control-inspired framework that trea
 5. Self-Explaining Neural Networks for Transparent Parkinson's Disease Screening (2026). https://pmc.ncbi.nlm.nih.gov/articles/PMC13165671/.
 
 **Author checklist:** no fabricated experiments; no clinical efficacy claims; verify each final citation and its metadata; enforce ACM page limit; prepare original figures with consistent typography; review GenAI disclosure instructions; retain anonymization.
+# Orientation-invariant transfer follow-up (exploratory)
+
+In a post-hoc analysis motivated by the failure of an accelerometer-only
+Daphnet-to-FoG-STAR model, three rotation-invariant acceleration-magnitude
+features were compared with the original 12-feature representation. Mean
+five-fold participant-grouped Daphnet AUROC increased from 0.751 to 0.816,
+but FoG-STAR AUROC remained poor (0.349 versus 0.354) and sensitivity at the
+fixed 0.5 threshold remained zero for both models. Label-free standardized
+mean differences for magnitude mean, magnitude SD, and magnitude-difference
+RMS were +0.167, -0.385, and -0.478, respectively. This result is exploratory
+because the original external target outcomes were already inspected before
+designing the orientation-invariance experiment. It supports analysis of
+generalization failures but is not prospective validation.
+
