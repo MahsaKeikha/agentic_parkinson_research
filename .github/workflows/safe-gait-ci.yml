@@ -1,0 +1,31 @@
+name: SAFE-GAIT research checks
+on:
+  push:
+    branches: [safe-gait-research]
+    paths: ['SAFE-GAIT/**', '.github/workflows/safe-gait-ci.yml']
+  pull_request:
+    paths: ['SAFE-GAIT/**', '.github/workflows/safe-gait-ci.yml']
+jobs:
+  research-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: SAFE-GAIT/requirements.txt
+      - name: Install test dependencies
+        run: python -m pip install -r SAFE-GAIT/requirements.txt
+      - name: Run all research unit tests
+        working-directory: SAFE-GAIT
+        run: python -m unittest discover -s . -p 'test_*.py' -v
+      - name: Run paper preflight (draft mode)
+        working-directory: SAFE-GAIT
+        run: python paper/check_submission.py --tex paper/main.tex --bib paper/references.bib
+      - name: Assert no raw datasets are tracked in SAFE-GAIT
+        run: |
+          if git ls-files SAFE-GAIT | grep -E '(^|/)(data/|sensor_data\.csv$|clinical_data\.csv$)'; then
+            echo 'ERROR: Raw dataset path tracked' >&2
+            exit 1
+          fi
