@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from events import Episode, episodes, event_summary, match_events
+from events import Episode, episodes, event_summary, match_events, merge_close_alerts
 
 
 class TestEventMetrics(unittest.TestCase):
@@ -34,6 +34,13 @@ class TestEventMetrics(unittest.TestCase):
         out = match_events([], [Episode(2, 3)])
         self.assertIsNone(out["event_sensitivity"])
         self.assertEqual(out["event_fp"], 1)
+
+    def test_merge_brief_alert_gap(self):
+        raw = [Episode(1, 2), Episode(3.5, 4), Episode(9, 10)]
+        self.assertEqual(merge_close_alerts(raw, 2), [Episode(1, 4), Episode(9, 10)])
+
+    def test_merge_zero_gap_does_not_bridge_distinct_alerts(self):
+        self.assertEqual(len(merge_close_alerts([Episode(0, 1), Episode(2, 3)], 0)), 2)
 
 
 if __name__ == "__main__":
