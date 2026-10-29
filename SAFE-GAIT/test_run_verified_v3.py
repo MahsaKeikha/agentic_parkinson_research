@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from run_verified_v3 import plan
+from run_verified_v3 import plan, file_sha256, write_manifest
 
 class TestFullV3Gate(unittest.TestCase):
     def setUp(self):
@@ -24,5 +24,15 @@ class TestFullV3Gate(unittest.TestCase):
             plan(self.good,timestamp_unit="s",source_dir=self.folder/"absent")
     def test_valid_gate_returns_scripts(self):
         self.assertEqual(len(plan(self.good,timestamp_unit="s",source_dir=self.folder)),3)
+    def test_file_sha256_matches_content(self):
+        import hashlib
+        p=self.folder/"hash.txt"
+        p.write_bytes(b"research-audit")
+        self.assertEqual(file_sha256(p), hashlib.sha256(b"research-audit").hexdigest())
+    def test_written_run_manifest(self):
+        import json
+        path=self.folder/"run.json"
+        write_manifest(path, {"status":"failed","failure":"example"})
+        self.assertEqual(json.loads(path.read_text())["status"],"failed")
 if __name__=="__main__":
     unittest.main()
