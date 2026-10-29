@@ -1,0 +1,59 @@
+# SAFE-GAIT: Risk-Aware and Explainable AI for Trustworthy Freezing-of-Gait Detection in Parkinson's Disease
+
+**Working manuscript, pre-submission research draft.** Intended for ACM TRUST 2027, REED-AI track. All numerical statements below refer to exploratory benchmarks and are subject to validation. Author names and affiliations are deliberately omitted for double-blind review.
+
+> **Data audit correction (29 October 2026):** The downloaded sensor file contains only 9 distinct participant IDs, despite 22 rows of clinical metadata. Previous 22-participant and 5,326-window results are superseded and must not be submitted. Quantitative claims below are retained as historical draft text pending a complete rewrite after dataset reconciliation.
+
+## Abstract (working version)
+
+Reliable freezing-of-gait (FoG) detection from wearable sensors is challenging because motor patterns differ between people with Parkinson's disease and recorded monitoring conditions. Predictive confidence is frequently interpreted as actionable certainty despite potential distribution shift. We investigate risk-aware selective prediction for FoG classification using wearable inertial data. Our evaluation protocol separates participants for model training, probability calibration and outer testing, and reports not only prediction accuracy but also the coverage, class-specific retention and error of automated decisions. A preliminary nine-participant subset of the FoG-STAR sensor file illustrates a discrepancy between discrimination and fixed-threshold sensitivity and exposes unstable calibration transfer across participant groups. Rather than assuming that uncertainty-based abstention improves safety, we quantify where its error reductions are offset by missed positive episodes. We outline a quality-aware supervisory architecture that explicitly accounts for such failure modes. This work aims to establish reproducible evaluation criteria for trustworthy FoG monitoring. The proposed supervisory method and external evaluation remain under development.
+
+**Keywords:** Parkinson's disease, freezing of gait, trustworthy AI, wearable sensing, probability calibration, selective prediction, risk-aware control.
+
+## 1. Introduction
+
+Wearable inertial sensors can capture changes in movement that may indicate freezing of gait, a disabling motor manifestation of Parkinson's disease. Automating such assessments is appealing because clinical observations are intermittent and movement patterns vary between contexts. However, a binary score is only useful for clinical decision support when its expected reliability under changing patients and sensor conditions is understood. False negative classifications can suppress potentially important observations, whereas false positives may increase unnecessary alarms and undermine confidence in the system.
+
+The distinction between **discrimination** and **decision reliability** is central. A classifier may have strong rank-based performance, as measured by AUROC or AUPRC, yet be unsuitable at a fixed operating threshold. Similarly, a calibrated risk score on one group need not remain calibrated in another. Selective classifiers add an abstention option, but their apparent error reduction may be misleading if they disproportionately withhold decisions for the very episodes a monitoring system is intended to detect.
+
+We study these failure modes with a reproducible participant-independent protocol on FoG-STAR, an annotated public inertial-sensor dataset. The long-term goal is SAFE-GAIT, a risk-aware supervisor that combines predictive uncertainty with input-quality information and explicit restrictions on positive-event retention. The present experimental results are preliminary baselines, not evidence of clinical efficacy.
+
+The scientific contributions targeted by the completed paper are: (i) a controlled evaluation of the relationship between patient shift, score calibration and selective risk; (ii) a risk-aware policy that can decline unreliable automated decisions without concealing missed FoG events; (iii) transparent event-level evaluation with sensor degradation and external-domain stress tests. At present, only the first part has an initial implementation.
+
+## 2. Related Work: Scope of the Comparison
+
+FoG-STAR provides synchronized inertial measurements, activity and severity labels, and subject-level clinical measures. Daphnet has served as a foundational accelerometer dataset for FoG recognition but differs in sensor placements and protocols. The PADS dataset studies Parkinson's-related movement features using smartwatch measurements, with a different primary prediction task. Prior work has investigated cross-dataset deployment gaps in FoG monitoring and self-explaining Parkinson's screening with calibration. Thus neither wearing a sensor, explaining a deep model, nor applying temperature/sigmoid calibration is novel by itself. The intended novelty must be established as the **jointly evaluated decision and risk-control mechanism**, with direct comparisons to strong prior baselines and explicit negative outcomes.
+
+## 3. Problem Formulation
+
+For sensor window X and label Y in {0,1}, a trained classifier estimates p(X) = P(Y=1 | X). Let q(X) denote quality measurements and u(X) a model uncertainty score. An automated supervisory decision a(X) is either positive, negative, or abstain. Define automated decision coverage C = P(a != abstain) and selective risk R = P(a != Y | a != abstain), assuming a binary action for accepted cases. These metrics must be reported together with positive-class retention P(a != abstain | Y=1) and episode-level sensitivity. Otherwise a policy can achieve superficially low selective risk by abstaining disproportionately on positive cases.
+
+For empirical group-held-out tests, no finite-sample distribution-free risk guarantee is assumed. Calibration is performed only on participants absent from the classifier-fitting group and the final test group. Target coverage is tuned exclusively on calibration participants; actual test coverage remains an outcome, not a constraint secretly enforced using test labels.
+
+## 4. Methods (pilot implementation)
+
+Signals are segmented into two-second windows with one-second stride. Eligible windows require at least 90% valid FoG annotations, and majority-positive labels determine binary outcomes. Per-channel mean, standard deviation, RMS and observed-data fraction are extracted. A histogram gradient-boosting model fits the features, with imputation fit on training participants only. Five outer GroupKFold splits provide participant-held-out testing. For selective experiments, an internal group split allocates disjoint participants to classifier fitting and sigmoid calibration. For each nominal coverage, an uncertainty cutoff based on the calibration distribution selects accepted test decisions.
+
+Data-processing checks identify a discrepancy between the documented timestamp unit and the observed CSV increments. The implementation infers seconds versus milliseconds from positive intersample differences and splits runs at observed timestamp gaps; this behavior requires further audit before final reporting.
+
+## 5. Preliminary Results
+
+The corrected uncalibrated baseline used 2,336 eligible windows from nine distinct participant IDs in the downloaded sensor file, 25.1% labeled positive. Fixed-threshold positive sensitivity ranged from 0% to 54.5% across five participant-held-out folds. The preliminary calibrated selective benchmark did not consistently improve Brier scores. At a nominal 80% coverage target, realized test coverage ranged approximately from 74% to 96%, and sensitivity among accepted positives was 0% in two folds. These failures preclude any conclusion of improved clinical safety. Five folds drawn from only nine participants are inadequate for robust inferential claims. The accompanying clinical metadata includes 22 participant entries, a discrepancy requiring reconciliation with the provider. Reproducibility details and corrections appear in the dataset audit and results reports.
+
+## 6. Discussion and Limitations
+
+The principal pilot finding is a warning about treating confidence-based abstention as inherently beneficial. Interparticipant differences may cause severe miscalibration and asymmetric acceptance of negative versus positive cases. The evaluation is limited by a small patient sample, overlapping correlated windows, artificial task conditions, absence of event-level validation and uncertain cross-dataset compatibility. Event sensitivity, false alarms per hour, timing and quality-aware supervision must be evaluated before deployment claims. Clinical governance, fairness and usability are future research questions, not validated outcomes of this work.
+
+## 7. Conclusion (provisional)
+
+Preliminary FoG-STAR experiments motivate a control-inspired framework that treats model uncertainty as a signal for scrutiny rather than automatic trust. Before drawing affirmative conclusions, further work must demonstrate reproducible improvements in accepted error while preserving positive-event retention, under participant and sensor shift.
+
+## Verified starting references (to expand to >=30 before submission)
+
+1. Borzi, L., et al. FoG-STAR wearable and clinical dataset, Zenodo, 2025, https://zenodo.org/records/17037669.
+2. Daphnet Freezing of Gait, UCI Machine Learning Repository, dataset 245, https://archive.ics.uci.edu/dataset/245/daphnet+freezing+of+gait.
+3. Varghese, J., et al. Machine Learning in the Parkinson's disease smartwatch (PADS) dataset. *npj Parkinson's Disease* 10, 9 (2024). https://doi.org/10.1038/s41531-023-00625-7.
+4. Deep Learning for Freezing of Gait Detection: Cross-Dataset Validation Reveals Critical Deployment Gaps Between Laboratory and Daily Living Wearable Monitoring (2026). https://pmc.ncbi.nlm.nih.gov/articles/PMC12944384/.
+5. Self-Explaining Neural Networks for Transparent Parkinson's Disease Screening (2026). https://pmc.ncbi.nlm.nih.gov/articles/PMC13165671/.
+
+**Author checklist:** no fabricated experiments; no clinical efficacy claims; verify each final citation and its metadata; enforce ACM page limit; prepare original figures with consistent typography; review GenAI disclosure instructions; retain anonymization.
