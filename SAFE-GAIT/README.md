@@ -91,3 +91,10 @@ The source data has not yet been run through this implementation. Results, impro
 - ACM TRUST 2027 author instructions, https://eigtrust.acm.org/trust2027/authors-guidelines/
 
 Licensed code is a research prototype. Dataset licensing remains with original data publishers.
+# Recent exploratory transfer analysis
+
+The [orientation-invariant transfer follow-up](ORIENTATION_INVARIANT_RESULTS.md)
+compares magnitude-only and axis-dependent features with source-only training.
+Improved source cross-validation did **not** fix poor FoG-STAR transfer. Its
+post-hoc status is documented explicitly; the result is not clinical validation.
+
