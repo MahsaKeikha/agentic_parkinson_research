@@ -1,0 +1,40 @@
+\documentclass[sigconf,review,anonymous]{acmart}
+\settopmatter{printacmref=false}
+\begin{document}
+\title{SAFE-GAIT: When Shift Warnings Fail in Parkinson's Freezing-of-Gait Monitoring}
+\begin{abstract}
+Wearable freezing-of-gait (FoG) classifiers may fail when deployment conditions differ from training. We audit Daphnet-trained accelerometer classifiers and exploratory failure warnings on a previously analyzed FoG-STAR subset. A magnitude-only model achieved mean source participant-grouped AUROC 0.816 but target AUROC 0.354. With decisions timestamped at the end of each two-second window, it detected zero of 28 labeled FoG episodes and generated six unmatched alert runs. Source-only feature-distance abstention reduced unmatched alerts to five but still missed every episode. A score-drift cutoff flagged six of nine target participants when calibrated on pooled source folds but only one when calibrated on individual held-out source participants. These exploratory results highlight the sensitivity of warnings to calibration units and the danger of equating fewer alerts with reliable detection. The full FoG-STAR v3 dataset requires independent provenance validation and reanalysis. No clinical safety or deployment claim is made.
+\end{abstract}
+\keywords{Parkinson's disease, freezing of gait, trustworthy AI, abstention, calibration, distribution shift}
+\maketitle
+\section{Introduction}
+Wearable FoG detection and cueing have an established history \cite{bachlin2010}. Cross-dataset degradation has also been reported \cite{lin2026}. We examine whether simple failure-warning mechanisms recognize a documented transfer failure.
+\section{Related Work}
+Reject-option classification is well established \cite{geifman2019}, as is the need to assess calibration \cite{guo2017}. We therefore do not claim invention of abstention, score drift, or external FoG testing. The contribution is a reproducible, bounded failure audit reporting event-level costs and warning calibration sensitivity.
+\section{Data and Provenance}
+Daphnet serves as source; back-worn accelerometer measurements from a nine-participant FoG-STAR subset serve as a shifted target. The FoG-STAR publication describes a larger dataset \cite{fogstar2026}, and Zenodo v3 record 17838806 requires full-manifest verification. Historical subset findings must not be confused with full-cohort evaluation.
+\section{Methods}
+Two-second windows use one-second stride; predictions are issued after the window completes. A source-trained gradient-boosting classifier uses axis-dependent or magnitude features. A source-only robust feature-distance gate rejects outlying windows, with rejected positive windows counted as missed events. Empirical-CDF score drift is calibrated either on pooled source folds or individual source participants. Raw episode overlaps yield one-to-one event detection and unmatched alert counts.
+\section{Exploratory Results}
+\begin{table}[t]
+\caption{Retrospective subset study, not a full-v3 evaluation.}
+\label{tab:results}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Classifier & Target AUROC & Event detection\\
+\midrule
+Axis-dependent & 0.349 & Not assessed here\\
+Magnitude-only & 0.354 & 0/28\\
+Magnitude + abstention & --- & 0/28\\
+\bottomrule
+\end{tabular}
+\end{table}
+The magnitude-only model produced six unmatched alerts (9.03 per recorded hour), versus five (7.52/hour) after abstention at selected source-retention settings. No FoG episodes were recovered. Pooled calibration flagged 6/9 target participants; individual-participant calibration flagged 1/9.
+\section{Limitations and Ethics}
+The FoG-STAR subset contains only nine sensor participant IDs and was previously inspected. Target sensor position, activity context and annotation differ from Daphnet. Calibration statistics have no formal finite-sample guarantee, and event matching uses a zero-tolerance convention. This study is neither prospective nor clinically validated. Results should not be used to automate care.
+\section{Conclusion}
+Simple out-of-distribution warning and abstention mechanisms did not rescue a failed transfer model. Calibration units, event sensitivity, and false-alert burden must be reported jointly before reliability claims.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}
