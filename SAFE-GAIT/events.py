@@ -82,6 +82,25 @@ def match_events(reference, alerts, tolerance_seconds=0.0):
             "latency_seconds": latencies}
 
 
+def merge_close_alerts(alerts, gap_seconds):
+    """Coalesce alerts separated by at most a specified refractory gap.
+
+    Must operate within one uninterrupted recording block, never across
+    subjects or task/session breaks. A merged alert starts at the first onset.
+    """
+    if gap_seconds < 0:
+        raise ValueError("gap_seconds must be nonnegative")
+    ordered = sorted(alerts, key=lambda event: (event.start, event.end))
+    merged = []
+    for alert in ordered:
+        if not merged or alert.start - merged[-1].end > gap_seconds:
+            merged.append(alert)
+        else:
+            last = merged[-1]
+            merged[-1] = Episode(last.start, max(last.end, alert.end))
+    return merged
+
+
 def event_summary(reference, alerts, recorded_seconds, tolerance_seconds=0.0):
     if recorded_seconds <= 0:
         raise ValueError("recorded_seconds must be positive")
