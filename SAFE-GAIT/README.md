@@ -24,6 +24,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `cross_dataset.py`: Daphnet-to-FoG-STAR accelerometer feature alignment and untouched-target shift test.
 - `cross_dataset_invariant.py`: post-hoc rotation-invariant transfer comparison and label-free shift audit.
 - `shift_supervisor.py`: exploratory source-only magnitude-distance abstention with explicit missed-positive accounting.
+- `shift_supervisor.py` also reports a participant-cluster AUROC bootstrap, avoiding a naive independent-window uncertainty calculation.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
