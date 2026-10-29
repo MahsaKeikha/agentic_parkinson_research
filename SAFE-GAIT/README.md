@@ -19,6 +19,7 @@ Can signal-quality-aware uncertainty calibration and an abstaining decision poli
 - `event_audit.py`: raw-annotation episode counts with source-order and timestamp-gap controls.
 - `daphnet_audit.py`: independent Daphnet recording and episode audit with explicit non-experiment label exclusion.
 - `event_baseline.py`: model-generated alerts matched against raw annotated episodes in participant-held-out folds.
+- `supervisor.py`: first three-action, validation-thresholded, quality-aware supervisory ablation.
 - `test_baseline.py`: synthetic tests guarding group separation, window extraction and basic metric integrity.
 - `dashboard.py`: Streamlit research explorer with **synthetic demonstration data only**. It does not imply clinical validation or display real patient records.
 - `PROTOCOL.md`: endpoints, leakage safeguards, dataset provenance, evaluation design and paper outline.
@@ -65,6 +66,7 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Independent Daphnet event audit: 237 events across 8 positive participants; see `EXTERNAL_DATA_AUDIT.md`
 - [x] First raw-event baseline: 14/28 detected episodes, 56 unmatched alert runs; see `EVENT_BASELINE_RESULTS.md`
 - [x] Exploratory burst-merging ablation: 36 unmatched runs at the same 14/28 detected episodes; see `ALERT_MERGING_ABLATION.md`
+- [x] First supervisor pilot: higher event sensitivity but unacceptable false-alert burden; see `SUPERVISOR_PILOT.md`
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [x] First calibrated selective benchmark (results pending validation)
