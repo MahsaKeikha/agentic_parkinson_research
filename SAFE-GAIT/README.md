@@ -8,6 +8,8 @@
 This subproject supports the proposed ACM TRUST 2027 REED-AI manuscript. It is distinct from the parent repository's agentic literature-research architecture.
 
 **Current paper draft:** [MANUSCRIPT_CONSOLIDATED.md](MANUSCRIPT_CONSOLIDATED.md).
+The [primary-source literature and novelty audit](LITERATURE_NOVELTY_AUDIT.md)
+identifies existing cross-dataset FoG studies and limits our contribution claims.
 The older `MANUSCRIPT_WORKING_DRAFT.md` is an incremental research log and is
 not the recommended submission manuscript.
 
