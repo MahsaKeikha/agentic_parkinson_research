@@ -56,7 +56,8 @@ def policy_metrics(labels, probabilities, accept):
     n = int(np.sum(accept))
     if not n:
         return {"coverage": 0.0, "accepted_windows": 0, "accepted_error": None,
-                "accepted_sensitivity": None, "accepted_specificity": None}
+                "accepted_sensitivity": None, "accepted_specificity": None,
+                "positive_retention": None, "negative_retention": None}
     yt, yp = labels[accept], predictions[accept]
     pos = int(yt.sum())
     neg = int(len(yt) - pos)
@@ -66,6 +67,12 @@ def policy_metrics(labels, probabilities, accept):
         "accepted_error": float(np.mean(yp != yt)),
         "accepted_sensitivity": float(np.sum(yp & (yt == 1)) / pos) if pos else None,
         "accepted_specificity": float(np.sum(~yp & (yt == 0)) / neg) if neg else None,
+        # Retention must be reported separately from sensitivity conditional
+        # on acceptance. A model can game accepted risk by rejecting positives.
+        "positive_retention": float(np.sum(accept & (labels == 1)) / np.sum(labels == 1))
+        if np.sum(labels == 1) else None,
+        "negative_retention": float(np.sum(accept & (labels == 0)) / np.sum(labels == 0))
+        if np.sum(labels == 0) else None,
     }
 
 
@@ -97,17 +104,30 @@ def run(x, y, groups, coverage_targets=(0.6, 0.8, 0.95), folds=5):
             "test_subjects": int(len(np.unique(groups[test]))),
             "test_windows": int(len(test)),
             "test_positive_windows": int(y[test].sum()),
+            "fit_positive_prevalence": float(y[fit_idx].mean()),
+            "calibration_positive_prevalence": float(y[cal_idx].mean()),
+            "test_positive_prevalence": float(y[test].mean()),
+            "calibrator_slope": float(calibrator.coef_[0, 0]) if calibrator is not None else None,
+            "calibrator_intercept": float(calibrator.intercept_[0]) if calibrator is not None else None,
             "brier_raw": float(brier_score_loss(y[test], raw_test)),
             "brier_calibrated": float(brier_score_loss(y[test], p_test)),
             "auroc": float(roc_auc_score(y[test], p_test)) if len(np.unique(y[test])) == 2 else None,
             "all_decisions": policy_metrics(y[test], p_test, np.ones(len(test), dtype=bool)),
             "selective": [],
+            "raw_selective": [],
         }
         for target in coverage_targets:
             cutoff = threshold_for_coverage(nonconformity(p_cal), target)
             accepted = nonconformity(p_test) <= cutoff
             entry["selective"].append({"target_coverage": target, "calibration_cutoff": cutoff,
                                         **policy_metrics(y[test], p_test, accepted)})
+            # Compare raw and calibrated models on exactly the same held-out
+            # participants, each with a threshold chosen on calibration subjects.
+            raw_cutoff = threshold_for_coverage(nonconformity(raw_cal), target)
+            raw_accepted = nonconformity(raw_test) <= raw_cutoff
+            entry["raw_selective"].append({"target_coverage": target,
+                                            "calibration_cutoff": raw_cutoff,
+                                            **policy_metrics(y[test], raw_test, raw_accepted)})
         reports.append(entry)
     return {"status": "exploratory: sigmoid-calibrated selective prediction, no risk guarantee",
             "folds": reports}
