@@ -37,6 +37,16 @@ at 90%, offering no convincing rescue of discrimination. These windows
 overlap in time, and the experiment does not report independent event-level
 performance.
 
+### Participant-cluster uncertainty
+
+FoG-STAR includes only **nine distinct sensor-data participants**. Resampling
+whole participants with replacement (seed 2027; 1,000 iterations) yielded 998
+bootstrap samples containing both classes. The AUROC 2.5th to 97.5th
+percentile interval was **0.2413 to 0.5537**. This wide interval is a
+descriptive cluster-bootstrap sensitivity analysis, not a prospectively
+validated confidence guarantee. It acknowledges overlapping windows within
+individuals; it does not resolve cohort-selection or annotation limitations.
+
 ## Interpretation
 
 **The source-distance supervisor failed to flag most target windows even
