@@ -48,7 +48,9 @@ The dashboard explores synthetic prediction probabilities and abstention thresho
 - [x] Written analysis protocol
 - [x] Participant-grouped baseline
 - [x] Synthetic research dashboard
-- [ ] Dataset download and schema audit
+- [x] Dataset download, MD5 verification and preliminary schema inspection
+- [x] Initial grouped baseline, reported as exploratory in `INITIAL_RESULTS.md`
+- [ ] Detailed annotation and event audit
 - [ ] Subject-level train/validation/test protocol freeze
 - [ ] Calibrated score and uncertainty estimation
 - [ ] Risk-aware supervisor and ablation study
