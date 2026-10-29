@@ -59,6 +59,31 @@ The shift-warning pilot changes markedly when calibration switches from pooled s
 \subsection{Evidence required to strengthen the claim}
 The full FoG-STAR v3 sensor and clinical files need exact file-level verification, and its expert episode conventions must be reconciled with our binary-label-run implementation. Any subsequent full-v3 result is also exploratory because target data influenced prior analyses. Stronger comparative evidence requires frequency-domain FoG baselines, prospective or genuinely untouched external evaluation, explicit alert-timing sensitivity, subject-level uncertainty and a clinically defensible intervention policy.
 
+\section{Separation of Endpoint Definitions}
+Table~\ref{tab:warningaudit} distinguishes the score-drift warning experiment from the FoG event-detection experiment. Flagging a participant for drift is not the same as detecting that participant's freezing episode. Neither pooled-fold nor single-participant ECDF cutoffs establish controlled false-warning probabilities.
+
+\begin{table}[t]
+\caption{Historical exploratory subset (nine participants). Distinct endpoints must not be conflated.}
+\label{tab:warningaudit}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Evaluation & Warning flags & Matched FoG runs\\
+\midrule
+Pooled-fold drift & 6/9 persons & Not assessed\\
+Single-person drift & 1/9 persons & Not assessed\\
+No abstention gate & Not assessed & 0/28\\
+80\% source-retention gate & Not assessed & 0/28\\
+90\% source-retention gate & Not assessed & 0/28\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reproducibility and Traceability}
+The provenance gate requires a separately verified dataset manifest and refuses to launch experiments unless all mandatory checks pass. The run orchestrator records SHA-256 hashes for source and target files, the manifest, each output, executed commands, software environment and per-step failure status; it also refuses stale results filenames. The episode-reconciliation script records participant/session/task discontinuities and requires explicit timestamp units. These controls improve reproducibility but do not guarantee clinical annotation validity.
+
+Historical AUROC estimates come from cross-dataset window-classification reports; zero-of-28 FoG run matching comes from the older event replay under zero matching tolerance and an assumed one-second alert hold. The warning flags come from a separate ECDF-score diagnostic. The complete v3 data and source-paper expert event conventions remain to be reconciled. New full-v3 results will remain exploratory because the target has previously informed analysis decisions.
+
 \section{Limitations and Ethics}
 The FoG-STAR subset contains only nine sensor participant IDs and was previously inspected. Target sensor position, activity context and annotation differ from Daphnet. Calibration statistics have no formal finite-sample guarantee, and event matching uses a zero-tolerance convention. This study is neither prospective nor clinically validated. Results should not be used to automate care.
 \section{Event-Timing Protocol Sensitivity}
