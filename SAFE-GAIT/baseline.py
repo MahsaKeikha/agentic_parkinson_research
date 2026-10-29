@@ -9,6 +9,7 @@ No participant-level test data is used to fit preprocessing or models.
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -37,10 +38,14 @@ def extract_windows(df, sample_hz=60, seconds=2, overlap=0.5):
     feature_rows, labels, groups = [], [], []
     for (sid, sess, task), block in df.groupby(["subjectID", "sessionID", "taskID"], sort=False):
         block = block.sort_values("timestamp")
-        # Break runs at timestamps differing materially from expected period;
-        # timestamp is documented in milliseconds, 60 Hz.
-        diffs = block["timestamp"].diff().fillna(1000 / sample_hz)
-        run_ids = (diffs.le(0) | diffs.gt(1.75 * 1000 / sample_hz)).cumsum()
+        # The dataset notes mention milliseconds, while observed CSV samples
+        # can advance by ~0.0167 (seconds). Infer the unit from valid intervals.
+        diffs = block["timestamp"].diff()
+        positive = diffs[(diffs > 0) & np.isfinite(diffs)]
+        if positive.empty:
+            continue
+        nominal_step = 1 / sample_hz if positive.median() < 1 else 1000 / sample_hz
+        run_ids = (diffs.le(0) | diffs.gt(1.75 * nominal_step)).cumsum()
         for _, run in block.groupby(run_ids, sort=False):
             x = run[sensor_cols].to_numpy(dtype=float)
             y = pd.to_numeric(run["fog"], errors="coerce").to_numpy()
@@ -51,7 +56,8 @@ def extract_windows(df, sample_hz=60, seconds=2, overlap=0.5):
                 if valid.mean() < 0.9:
                     continue
                 positive = int(np.mean(target[valid]) >= 0.5)
-                with np.errstate(invalid="ignore"):
+                with np.errstate(invalid="ignore"), warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RuntimeWarning)
                     means = np.nanmean(segment, axis=0)
                     stds = np.nanstd(segment, axis=0)
                     rms = np.sqrt(np.nanmean(np.square(segment), axis=0))
