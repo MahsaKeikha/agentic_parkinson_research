@@ -23,6 +23,18 @@ def file_sha256(path):
 def write_manifest(path, record):
     path.write_text(json.dumps(record, indent=2), encoding="utf-8")
 
+OUTPUT_MAP = {
+    "cross_dataset.py": "cross_dataset_shift.json",
+    "cross_dataset_invariant.py": "cross_dataset_invariant.json",
+    "cross_dataset_events.py": "cross_dataset_events.json",
+}
+
+def require_clean_outputs(out_dir, pipeline):
+    stale = [str(out_dir / OUTPUT_MAP[name]) for name in pipeline
+             if (out_dir / OUTPUT_MAP[name]).exists()]
+    if stale:
+        raise FileExistsError("Refusing to reuse results from a previous run: " + ", ".join(stale))
+
 def plan(report, *, timestamp_unit, source_dir):
     if report.get("status") != "PASS":
         raise ValueError("Manifest audit must PASS before experiments")
@@ -57,6 +69,7 @@ def main():
     if report["status"] != "PASS":
         raise SystemExit("STOP: provenance did not PASS. No experiments run.")
     pipeline=plan(report,timestamp_unit=args.timestamp_unit,source_dir=args.daphnet_dir)
+    require_clean_outputs(args.out, pipeline)
     record={"status":"running", "claim_scope":"exploratory_posthoc_full_v3_reanalysis_not_independent",
             "python":sys.version, "platform":platform.platform(),
             "sensor_sha256":file_sha256(args.sensor_data),
@@ -83,9 +96,7 @@ def main():
             record["status"]="failed"
             write_manifest(record_path,record)
             raise
-        expected={"cross_dataset.py":"cross_dataset_shift.json",
-                  "cross_dataset_invariant.py":"cross_dataset_invariant.json",
-                  "cross_dataset_events.py":"cross_dataset_events.json"}[script]
+        expected=OUTPUT_MAP[script]
         output=args.out/expected
         if not output.is_file():
             step["status"]="failed"
