@@ -84,6 +84,8 @@ def main():
                  "--daphnet-dir",str(args.daphnet_dir.resolve()),
                  "--fogstar-sensor-data",str(args.sensor_data.resolve()),
                  "--out",str(args.out.resolve())]
+        if script == "cross_dataset_events.py":
+            command.extend(["--timestamp-unit", args.timestamp_unit])
         step={"script":script, "command":command, "status":"running"}
         record["results"].append(step)
         write_manifest(record_path,record)
