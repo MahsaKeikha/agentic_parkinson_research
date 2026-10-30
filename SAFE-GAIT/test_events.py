@@ -38,6 +38,32 @@ class TestEventMetrics(unittest.TestCase):
         result = match_events(refs, [Episode(1.5, 2.5)], tolerance_seconds=1)
         self.assertEqual((result["event_tp"], result["event_fn"]), (1, 1))
 
+    def test_exhaustive_small_graphs_against_bruteforce(self):
+        # Independent optimum by subset DP over small overlap graphs.
+        from itertools import product
+        from functools import lru_cache
+        for n_ref, n_alert in ((2, 2), (3, 3)):
+            count = n_ref * n_alert
+            # All graph patterns, realized through event intervals when possible.
+            refs = [Episode(3 * i, 3 * i + 1) for i in range(n_ref)]
+            # Enumerate an alert either over each individual reference or a span.
+            options = [Episode(3 * i + 0.2, 3 * j + 0.8)
+                       for i in range(n_ref) for j in range(i, n_ref)]
+            for idxs in product(range(len(options)), repeat=n_alert):
+                alerts = [options[i] for i in idxs]
+                adjacency = [[j for j, a in enumerate(alerts)
+                              if a.end > r.start and a.start < r.end] for r in refs]
+                @lru_cache(None)
+                def optimum(i, used):
+                    if i == n_ref:
+                        return 0
+                    best = optimum(i + 1, used)
+                    for j in adjacency[i]:
+                        if not used & (1 << j):
+                            best = max(best, 1 + optimum(i + 1, used | (1 << j)))
+                    return best
+                self.assertEqual(match_events(refs, alerts)["event_tp"], optimum(0, 0))
+
     def test_single_alert_cannot_match_twice(self):
         ref = [Episode(1, 2), Episode(3, 4)]
         alerts = [Episode(1.5, 3.5)]
