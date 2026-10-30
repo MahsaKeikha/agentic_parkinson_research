@@ -36,8 +36,7 @@ def target_blocks(df, hz=60):
     blocks = []
     size, hop = 2 * hz, hz
     for start, stop in zip(starts, np.r_[starts[1:], len(df)]):
-        if stop - start < size:
-            continue
+        # Retain short runs in the event denominator even if no window can be scored.
         block = df.iloc[start:stop]
         t = time[start:stop] * scale
         y = block["fog"].to_numpy(dtype=float)
