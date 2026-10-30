@@ -17,19 +17,19 @@ from events import episodes, event_summary
 from shift_supervisor import SourceDistanceGate
 
 
-def target_blocks(df, hz=60):
+def target_blocks(df, hz=60, timestamp_unit="s"):
     """Run-isolated raw episodes and end-of-window feature observations."""
     columns = ["subjectID", "sessionID", "taskID", "timestamp", "fog",
                "back_acc_x", "back_acc_y", "back_acc_z"]
     if not set(columns).issubset(df.columns):
         raise ValueError("Required FoG-STAR fields missing")
-    keys = df[["subjectID", "sessionID", "taskID"]]
+    if timestamp_unit not in ("s", "ms"):\n        raise ValueError("Timestamp unit must be explicitly s or ms")\n    if not np.isfinite(df["timestamp"].to_numpy(dtype=float)).all():\n        raise ValueError("Nonfinite timestamps are not valid sensor samples")\n    keys = df[["subjectID", "sessionID", "taskID"]]
     time = df["timestamp"].to_numpy(dtype=float)
     delta = np.diff(time)
     positive = delta[(delta > 0) & np.isfinite(delta)]
     if not len(positive):
         raise ValueError("No valid sample rate")
-    scale = 1.0 if np.median(positive) < 1 else 0.001
+    scale = 1.0 if timestamp_unit == "s" else 0.001\n    median_period = float(np.median(positive) * scale)\n    if not 0.01 <= median_period <= 0.025:\n        raise ValueError("Explicit timestamp unit inconsistent with nominal 60 Hz")
     breaks = np.r_[True, (delta <= 0) | ~np.isfinite(delta) |
                    (delta * scale > 1.5 / hz)] | keys.ne(keys.shift()).any(axis=1).to_numpy()
     starts = np.flatnonzero(breaks)
@@ -95,11 +95,11 @@ def summarize_policy(blocks, model, gate=None):
     return {"aggregate": totals, "by_subject": by_subject}
 
 
-def run(daphnet, target_df):
+def run(daphnet, target_df, timestamp_unit="s"):
     source_x, source_y, _ = daphnet
     source = orientation_invariant(source_x)
     model = new_model().fit(source, source_y)
-    blocks = target_blocks(target_df)
+    blocks = target_blocks(target_df, timestamp_unit=timestamp_unit)
     policies = {"no_gate": summarize_policy(blocks, model)}
     for fraction in (0.8, 0.9, 0.95):
         gate = SourceDistanceGate(fraction).fit(source)
@@ -113,9 +113,9 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--daphnet-dir", type=Path, required=True)
     p.add_argument("--fogstar-sensor-data", type=Path, required=True)
-    p.add_argument("--out", type=Path, default=Path("results"))
+    p.add_argument("--out", type=Path, default=Path("results"))\n    p.add_argument("--timestamp-unit", choices=["s", "ms"], required=True)
     args = p.parse_args()
-    report = run(load_daphnet(args.daphnet_dir), pd.read_csv(args.fogstar_sensor_data))
+    report = run(load_daphnet(args.daphnet_dir), pd.read_csv(args.fogstar_sensor_data),\n                 timestamp_unit=args.timestamp_unit)
     args.out.mkdir(parents=True, exist_ok=True)
     path = args.out / "cross_dataset_events.json"
     path.write_text(json.dumps(report, indent=2), encoding="utf-8")
