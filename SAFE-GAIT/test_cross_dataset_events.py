@@ -18,6 +18,19 @@ class RejectGate:
 
 
 class TestEventReplay(unittest.TestCase):
+    def test_short_positive_block_is_counted_as_missed(self):
+        rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
+                 "timestamp": i / 60, "fog": 1,
+                 "back_acc_x": 1., "back_acc_y": 0., "back_acc_z": 0.}
+                for i in range(60)]
+        blocks = target_blocks(pd.DataFrame(rows))
+        self.assertEqual(len(blocks), 1)
+        self.assertEqual(blocks[0]["features"].shape, (0, 12))
+        result = summarize_policy(blocks, FixedModel())["aggregate"]
+        self.assertEqual(result["reference_episodes"], 1)
+        self.assertEqual(result["event_fn"], 1)
+        self.assertEqual(result["windows"], 0)
+
     def test_alerts_cannot_precede_window_completion(self):
         rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
                  "timestamp": i / 60, "fog": int(i >= 60),
