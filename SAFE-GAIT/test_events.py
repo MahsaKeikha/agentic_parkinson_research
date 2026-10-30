@@ -43,7 +43,6 @@ class TestEventMetrics(unittest.TestCase):
         from itertools import product
         from functools import lru_cache
         for n_ref, n_alert in ((2, 2), (3, 3)):
-            count = n_ref * n_alert
             # All graph patterns, realized through event intervals when possible.
             refs = [Episode(3 * i, 3 * i + 1) for i in range(n_ref)]
             # Enumerate an alert either over each individual reference or a span.
