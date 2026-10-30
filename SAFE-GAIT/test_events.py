@@ -25,6 +25,19 @@ class TestEventMetrics(unittest.TestCase):
         out = match_events(refs, alerts)
         self.assertEqual((out["event_tp"], out["event_fn"], out["event_fp"]), (2, 0, 0))
 
+    def test_matching_is_invariant_to_alert_input_order(self):
+        refs = [Episode(0, 2), Episode(3, 4)]
+        alerts = [Episode(0.1, 3.5), Episode(0.5, 1.5)]
+        forward = match_events(refs, alerts)
+        reverse = match_events(list(reversed(refs)), list(reversed(alerts)))
+        for key in ("event_tp", "event_fn", "event_fp", "event_sensitivity"):
+            self.assertEqual(forward[key], reverse[key])
+
+    def test_one_long_alert_cannot_satisfy_multiple_events_with_tolerance(self):
+        refs = [Episode(0, 1), Episode(3, 4)]
+        result = match_events(refs, [Episode(1.5, 2.5)], tolerance_seconds=1)
+        self.assertEqual((result["event_tp"], result["event_fn"]), (1, 1))
+
     def test_single_alert_cannot_match_twice(self):
         ref = [Episode(1, 2), Episode(3, 4)]
         alerts = [Episode(1.5, 3.5)]
