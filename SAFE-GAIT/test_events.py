@@ -17,6 +17,14 @@ class TestEventMetrics(unittest.TestCase):
         y = np.array([1, np.nan, 1, 0])
         self.assertEqual(episodes(t, y, 1), [Episode(0, 1), Episode(2, 3)])
 
+    def test_maximum_matching_avoids_greedy_missed_event(self):
+        # Earliest long alert overlaps both events; second alert overlaps only
+        # the first. Greedy earliest-alert matching gets 1; optimum gets 2.
+        refs = [Episode(0, 2), Episode(3, 4)]
+        alerts = [Episode(1, 3.5), Episode(0.5, 1.5)]
+        out = match_events(refs, alerts)
+        self.assertEqual((out["event_tp"], out["event_fn"], out["event_fp"]), (2, 0, 0))
+
     def test_single_alert_cannot_match_twice(self):
         ref = [Episode(1, 2), Episode(3, 4)]
         alerts = [Episode(1.5, 3.5)]
