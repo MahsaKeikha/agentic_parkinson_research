@@ -1,11 +1,26 @@
 \documentclass[sigconf,review,anonymous]{acmart}
-\settopmatter{printacmref=false}
 \begin{document}
 \title{SAFE-GAIT: When Shift Warnings Fail in Parkinson's Freezing-of-Gait Monitoring}
 \begin{abstract}
 Wearable freezing-of-gait (FoG) classifiers may fail when deployment conditions differ from training. We audit Daphnet-trained accelerometer classifiers and exploratory failure warnings on a previously analyzed FoG-STAR subset. A magnitude-only model achieved mean source participant-grouped AUROC 0.816 but target AUROC 0.354. Under an end-of-window, one-second alert-hold convention, it matched zero of 28 binary-label FoG runs and generated six unmatched alert runs. Source-only feature-distance abstention reduced unmatched alerts to five but still missed every episode. A score-drift cutoff flagged six of nine target participants when calibrated on pooled source folds but only one when calibrated on individual held-out source participants. These exploratory results highlight the sensitivity of warnings to calibration units and the danger of equating fewer alerts with reliable detection. The full FoG-STAR v3 dataset requires independent provenance validation and reanalysis. No clinical safety or deployment claim is made.
 \end{abstract}
 \keywords{Parkinson's disease, freezing of gait, trustworthy AI, abstention, calibration, distribution shift}
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10010405.10010476</concept_id>
+  <concept_desc>Applied computing~Health care information systems</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010147.10010257</concept_id>
+  <concept_desc>Computing methodologies~Machine learning</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[300]{Applied computing~Health care information systems}
+\ccsdesc[300]{Computing methodologies~Machine learning}
 \maketitle
 \section{Introduction}
 Wearable FoG detection and cueing have an established history \cite{bachlin2010}. Cross-dataset degradation has also been reported \cite{lin2026}. We examine whether simple failure-warning mechanisms recognize a documented transfer failure.
