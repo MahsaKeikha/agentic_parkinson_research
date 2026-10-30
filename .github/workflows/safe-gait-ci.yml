@@ -42,6 +42,13 @@ jobs:
           root_file: main.tex
           working_directory: SAFE-GAIT/paper
           latexmk_shell_escape: false
+      - name: Fail on unresolved final-pass citations or references
+        run: |
+          test -s SAFE-GAIT/paper/main.log
+          if grep -E 'Citation .* undefined|Reference .* undefined|There were undefined citations|There were undefined references' SAFE-GAIT/paper/main.log; then
+            echo 'Unresolved citations/references in final LaTeX pass' >&2
+            exit 1
+          fi
       - name: Upload draft PDF for visual inspection
         uses: actions/upload-artifact@v4
         with:
