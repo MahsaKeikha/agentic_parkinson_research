@@ -21,7 +21,7 @@ class TestEventMetrics(unittest.TestCase):
         # Earliest long alert overlaps both events; second alert overlaps only
         # the first. Greedy earliest-alert matching gets 1; optimum gets 2.
         refs = [Episode(0, 2), Episode(3, 4)]
-        alerts = [Episode(1, 3.5), Episode(0.5, 1.5)]
+        alerts = [Episode(0.1, 3.5), Episode(0.5, 1.5)]
         out = match_events(refs, alerts)
         self.assertEqual((out["event_tp"], out["event_fn"], out["event_fp"]), (2, 0, 0))
 
