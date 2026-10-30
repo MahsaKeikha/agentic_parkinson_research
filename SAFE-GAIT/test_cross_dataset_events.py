@@ -31,6 +31,24 @@ class TestEventReplay(unittest.TestCase):
         self.assertEqual(result["event_fn"], 1)
         self.assertEqual(result["windows"], 0)
 
+    def test_explicit_millisecond_timestamp_unit(self):
+        rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
+                 "timestamp": i * 1000 / 60, "fog": int(i >= 60),
+                 "back_acc_x": 1., "back_acc_y": 0., "back_acc_z": 0.}
+                for i in range(120)]
+        blocks = target_blocks(pd.DataFrame(rows), timestamp_unit="ms")
+        self.assertAlmostEqual(blocks[0]["decisions"][0], 2.0)
+        with self.assertRaises(ValueError):
+            target_blocks(pd.DataFrame(rows), timestamp_unit="s")
+
+    def test_reject_nonfinite_timestamp(self):
+        rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
+                 "timestamp": float("nan") if i == 10 else i / 60,
+                 "fog": 1, "back_acc_x": 1., "back_acc_y": 0.,
+                 "back_acc_z": 0.} for i in range(120)]
+        with self.assertRaises(ValueError):
+            target_blocks(pd.DataFrame(rows), timestamp_unit="s")
+
     def test_alerts_cannot_precede_window_completion(self):
         rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
                  "timestamp": i / 60, "fog": int(i >= 60),
