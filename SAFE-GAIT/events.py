@@ -53,27 +53,40 @@ def episodes(times, labels, sample_period, max_gap_factor=1.5, min_duration=0.0)
 
 
 def match_events(reference, alerts, tolerance_seconds=0.0):
-    """Greedy one-to-one matching, earliest candidate per reference episode.
+    """Maximum-cardinality one-to-one event matching.
 
     An alert is eligible if it overlaps an expanded reference interval. Ties
-    choose the earliest alert. One alert cannot satisfy multiple events.
+    are considered in onset order. One alert cannot satisfy multiple events.
     This is a specified operational rule, not a universally accepted FoG metric.
     """
     if tolerance_seconds < 0:
         raise ValueError("tolerance_seconds must be nonnegative")
-    used = set()
-    latencies = []
-    matched = []
-    for ref in sorted(reference, key=lambda e: e.start):
-        eligible = [i for i, alert in enumerate(alerts)
-                    if i not in used and alert.end > ref.start - tolerance_seconds
-                    and alert.start < ref.end + tolerance_seconds]
-        if not eligible:
-            continue
-        chosen = min(eligible, key=lambda i: (alerts[i].start, i))
-        used.add(chosen)
-        matched.append((ref, alerts[chosen]))
-        latencies.append(max(0.0, alerts[chosen].start - ref.start))
+    ordered = sorted(reference, key=lambda e: (e.start, e.end))
+    # Augmenting-path bipartite matching maximizes detected events rather than
+    # allowing an early greedy choice to block a later reference episode.
+    # Sorting makes tie resolution deterministic; not a latency optimum.
+    eligible = [sorted(
+        (i for i, alert in enumerate(alerts)
+         if alert.end > ref.start - tolerance_seconds
+         and alert.start < ref.end + tolerance_seconds),
+        key=lambda i: (alerts[i].start, alerts[i].end, i))
+        for ref in ordered]
+    owner = {}
+    def augment(ref_idx, visited):
+        for alert_idx in eligible[ref_idx]:
+            if alert_idx in visited:
+                continue
+            visited.add(alert_idx)
+            if alert_idx not in owner or augment(owner[alert_idx], visited):
+                owner[alert_idx] = ref_idx
+                return True
+        return False
+    for idx in range(len(ordered)):
+        augment(idx, set())
+    matched = sorted(((ordered[ref_idx], alerts[alert_idx])
+                      for alert_idx, ref_idx in owner.items()),
+                     key=lambda pair: (pair[0].start, pair[1].start))
+    latencies = [max(0.0, alert.start - ref.start) for ref, alert in matched]
     tp = len(matched)
     return {"event_tp": tp, "event_fn": len(reference) - tp,
             "event_fp": len(alerts) - tp,
