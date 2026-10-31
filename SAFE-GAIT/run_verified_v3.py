@@ -64,8 +64,8 @@ def plan(report, *, timestamp_unit, source_dir):
         raise ValueError("Manifest audit must PASS before experiments")
     if timestamp_unit not in ("s", "ms"):
         raise ValueError("Explicit timestamp unit required")
-    if not source_dir.is_dir() or not list(source_dir.glob("S??R??.txt")):
-        raise FileNotFoundError("Verified Daphnet source recordings required")
+    if not source_dir.is_dir() or len(list(source_dir.glob("S??R??.txt"))) != 17:
+        raise FileNotFoundError("Expected all 17 original Daphnet recording files")
     groups=report.get("groups",[])
     medians=[g.get("median_positive_time_step") for g in groups if g.get("median_positive_time_step") is not None]
     scale = 0.001 if timestamp_unit == "ms" else 1.0
@@ -102,6 +102,7 @@ def main():
             "sensor_sha256":file_sha256(args.sensor_data),
             "clinical_sha256":file_sha256(args.clinical_data),
             "manifest_sha256":file_sha256(args.manifest),
+            "daphnet_recordings":[{"file":p.name,"sha256":file_sha256(p)} for p in sorted(args.daphnet_dir.glob("S??R??.txt"))],
             "dataset_verified":"manifest_check.json", "scripts":pipeline,
             "results":[], "failure":None}
     record_path=args.out/"experiment_run_manifest.json"
