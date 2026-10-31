@@ -11,10 +11,10 @@ Scientific Data descriptor: https://doi.org/10.1038/s41597-026-06645-1
 - The clinical CSV is documented to contain 22 subjects and 10 fields. The sensor CSV is ~119.6 MB.
 - Checksums are sourced from the v3 Zenodo record, *not* measured against local downloaded files in this session.
 
-## Critical no-run gate
-`cross_dataset.py` and `cross_dataset_invariant.py` currently interpret target timestamps in **seconds**. `cross_dataset_events.py` now accepts an explicit `--timestamp-unit` option. `run_verified_v3.py` currently rejects `ms` to prevent silently wrong results in the first two scripts.
+## Timestamp conversion status
+The model feature loader, the orientation-invariant analysis, the event replay, and the verified runner now accept explicit `s` or `ms` units. The official v3 release requires `--timestamp-unit ms`. All model loaders convert milliseconds to seconds before run splitting. Median sample-period plausibility checks reject wrong-unit declarations.
 
-**Do not bypass this gate** by falsely declaring v3 timestamps to be seconds. Before running the full release, implement and test a consistent explicit ms-to-s conversion in both classification loaders, and verify complete release file hashes and the manifest. The official data paper's episode counts are separate from binary label-run counts.
+**Do not run until** local official CSV files and manifest pass the provenance audit. The timestamp code change also requires a fresh passing CI result and an end-to-end execution on real v3 data. Earlier exploratory results are not revalidated by this code change.
 
 ## Recommended audit manifest fields
 ```json
