@@ -72,12 +72,20 @@ def load_daphnet(directory):
     return np.asarray(features), np.asarray(labels), np.asarray(groups)
 
 
-def load_fogstar(file):
+def load_fogstar(file, timestamp_unit='s'):
+    if timestamp_unit not in ('s', 'ms'):
+        raise ValueError('timestamp_unit must be explicitly s or ms')
     d = pd.read_csv(file)
     cols = ["back_acc_x", "back_acc_y", "back_acc_z"]
     features, labels, groups = [], [], []
     keys = d[["subjectID", "sessionID", "taskID"]]
-    times = d["timestamp"].to_numpy(dtype=float)
+    times = d["timestamp"].to_numpy(dtype=float) * (0.001 if timestamp_unit == "ms" else 1.0)
+    if not np.isfinite(times).all():
+        raise ValueError("Nonfinite target timestamps")
+    positive_steps = np.diff(times)
+    positive_steps = positive_steps[positive_steps > 0]
+    if not len(positive_steps) or not 0.01 <= np.median(positive_steps) <= 0.025:
+        raise ValueError("Timestamp unit incompatible with nominal 60 Hz")
     steps = np.diff(times)
     change = keys.ne(keys.shift()).any(axis=1).to_numpy()
     starts = np.flatnonzero(np.r_[True, (steps <= 0) | (steps > 1.5 / 60)] | change)
@@ -136,8 +144,9 @@ def main():
     p.add_argument("--daphnet-dir", type=Path, required=True)
     p.add_argument("--fogstar-sensor-data", type=Path, required=True)
     p.add_argument("--out", type=Path, default=Path("results"))
+    p.add_argument("--timestamp-unit", choices=["s","ms"], default="s")
     args = p.parse_args()
-    report = run(load_daphnet(args.daphnet_dir), load_fogstar(args.fogstar_sensor_data))
+    report = run(load_daphnet(args.daphnet_dir), load_fogstar(args.fogstar_sensor_data, timestamp_unit=args.timestamp_unit))
     args.out.mkdir(parents=True, exist_ok=True)
     destination = args.out / "cross_dataset_shift.json"
     destination.write_text(json.dumps(report, indent=2), encoding="utf-8")
