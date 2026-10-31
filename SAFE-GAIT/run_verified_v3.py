@@ -38,13 +38,14 @@ def require_clean_outputs(out_dir, pipeline):
 def plan(report, *, timestamp_unit, source_dir):
     if report.get("status") != "PASS":
         raise ValueError("Manifest audit must PASS before experiments")
-    if timestamp_unit != "s":
-        raise ValueError("Existing model parsers assume seconds; convert timestamps in a documented, separately checked preprocessing step")
+    if timestamp_unit not in ("s", "ms"):
+        raise ValueError("Explicit timestamp unit required")
     if not source_dir.is_dir() or not list(source_dir.glob("S??R??.txt")):
         raise FileNotFoundError("Verified Daphnet source recordings required")
     groups=report.get("groups",[])
     medians=[g.get("median_positive_time_step") for g in groups if g.get("median_positive_time_step") is not None]
-    if not medians or not all(0.01 <= x <= 0.025 for x in medians):
+    scale = 0.001 if timestamp_unit == "ms" else 1.0
+    if not medians or not all(0.01 <= x * scale <= 0.025 for x in medians):
         raise ValueError("Sensor timestamps inconsistent with nominal 60 Hz in seconds")
     return [
         "cross_dataset.py",
@@ -84,8 +85,7 @@ def main():
                  "--daphnet-dir",str(args.daphnet_dir.resolve()),
                  "--fogstar-sensor-data",str(args.sensor_data.resolve()),
                  "--out",str(args.out.resolve())]
-        if script == "cross_dataset_events.py":
-            command.extend(["--timestamp-unit", args.timestamp_unit])
+        command.extend(["--timestamp-unit", args.timestamp_unit])
         step={"script":script, "command":command, "status":"running"}
         record["results"].append(step)
         write_manifest(record_path,record)
