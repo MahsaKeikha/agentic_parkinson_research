@@ -75,8 +75,9 @@ def main():
     parser.add_argument("--daphnet-dir", required=True, type=Path)
     parser.add_argument("--fogstar-sensor-data", required=True, type=Path)
     parser.add_argument("--out", type=Path, default=Path("results"))
+    parser.add_argument("--timestamp-unit", choices=["s", "ms"], default="s")
     args = parser.parse_args()
-    report = compare(load_daphnet(args.daphnet_dir), load_fogstar(args.fogstar_sensor_data))
+    report = compare(load_daphnet(args.daphnet_dir), load_fogstar(args.fogstar_sensor_data, timestamp_unit=args.timestamp_unit))
     args.out.mkdir(parents=True, exist_ok=True)
     path = args.out / "cross_dataset_invariant.json"
     path.write_text(json.dumps(report, indent=2), encoding="utf-8")
