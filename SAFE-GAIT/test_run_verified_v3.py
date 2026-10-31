@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from run_verified_v3 import plan, file_sha256, write_manifest, require_clean_outputs
+from run_verified_v3 import plan, file_sha256, write_manifest, require_clean_outputs, verify_official_manifest, OFFICIAL_V3
 
 class TestFullV3Gate(unittest.TestCase):
     def setUp(self):
@@ -44,5 +44,23 @@ class TestFullV3Gate(unittest.TestCase):
         out=self.folder/"fresh"
         out.mkdir()
         require_clean_outputs(out,["cross_dataset.py"])
+    def test_exact_official_release_manifest(self):
+        import copy
+        verify_official_manifest(copy.deepcopy(OFFICIAL_V3))
+
+    def test_consistent_subset_manifest_rejected(self):
+        import copy
+        candidate = copy.deepcopy(OFFICIAL_V3)
+        candidate["sensor"]["rows"] = 143530
+        with self.assertRaisesRegex(ValueError, "official FoG-STAR v3"):
+            verify_official_manifest(candidate)
+
+    def test_wrong_release_hash_rejected(self):
+        import copy
+        candidate = copy.deepcopy(OFFICIAL_V3)
+        candidate["sensor"]["md5"] = "0" * 32
+        with self.assertRaises(ValueError):
+            verify_official_manifest(candidate)
+
 if __name__=="__main__":
     unittest.main()
