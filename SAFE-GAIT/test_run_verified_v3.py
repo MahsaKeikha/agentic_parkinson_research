@@ -13,9 +13,9 @@ class TestFullV3Gate(unittest.TestCase):
     def test_reject_unverified(self):
         with self.assertRaises(ValueError):
             plan({"status":"UNVERIFIED"},timestamp_unit="s",source_dir=self.folder)
-    def test_reject_milliseconds_in_existing_parser(self):
-        with self.assertRaises(ValueError):
-            plan(self.good,timestamp_unit="ms",source_dir=self.folder)
+    def test_accept_milliseconds_in_verified_runner(self):
+        report={"status":"PASS","groups":[{"median_positive_time_step":1000/60}]}
+        self.assertEqual(len(plan(report,timestamp_unit="ms",source_dir=self.folder)),3)
     def test_reject_wrong_sampling_period(self):
         with self.assertRaises(ValueError):
             plan({"status":"PASS","groups":[{"median_positive_time_step":1.0}]},timestamp_unit="s",source_dir=self.folder)
