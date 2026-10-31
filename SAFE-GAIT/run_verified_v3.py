@@ -13,6 +13,30 @@ from pathlib import Path
 
 from provenance_audit import audit
 
+OFFICIAL_V3 = {
+    "sensor": {"md5": "952a37ab147da35e6d4e7a1e9bac44cb", "rows": 329027, "columns": 31},
+    "clinical": {"md5": "8b9a2339c8fcb8eaa470bcb1784d31c5", "rows": 22, "columns": 10},
+    "subject_count": 22,
+}
+
+def verify_official_manifest(manifest):
+    """Reject self-consistent subsets masquerading as the complete official release."""
+    for kind in ("sensor", "clinical"):
+        actual = manifest.get(kind, {})
+        expected = OFFICIAL_V3[kind]
+        if not isinstance(actual, dict):
+            raise ValueError("Official manifest file section missing")
+        for field in ("md5", "rows", "columns"):
+            value = actual.get(field)
+            if field == "md5":
+                good = isinstance(value, str) and value.lower() == expected[field]
+            else:
+                good = type(value) is int and value == expected[field]
+            if not good:
+                raise ValueError(f"Manifest does not identify official FoG-STAR v3: {kind}.{field}")
+    if type(manifest.get("subject_count")) is not int or manifest["subject_count"] != 22:
+        raise ValueError("Official v3 requires 22 sensor participants")
+
 def file_sha256(path):
     digest = hashlib.sha256()
     with open(path, "rb") as stream:
@@ -64,7 +88,9 @@ def main():
     args=p.parse_args()
     if not args.sensor_data.is_file() or not args.clinical_data.is_file() or not args.manifest.is_file():
         p.error("Official local files and independent manifest are required")
-    report=audit(args.sensor_data,args.clinical_data,json.loads(args.manifest.read_text()))
+    manifest = json.loads(args.manifest.read_text())
+    verify_official_manifest(manifest)
+    report=audit(args.sensor_data,args.clinical_data,manifest)
     args.out.mkdir(parents=True,exist_ok=True)
     (args.out/"manifest_check.json").write_text(json.dumps(report,indent=2))
     if report["status"] != "PASS":
