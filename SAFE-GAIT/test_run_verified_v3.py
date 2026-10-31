@@ -8,7 +8,8 @@ class TestFullV3Gate(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.folder=Path(self.tmp.name)
-        (self.folder/"S01R01.txt").write_text("synthetic placeholder")
+        for i in range(1,18):
+            (self.folder/f"S{i:02d}R01.txt").write_text("synthetic placeholder")
         self.good={"status":"PASS","groups":[{"median_positive_time_step":1/60}]}
     def test_reject_unverified(self):
         with self.assertRaises(ValueError):
@@ -22,6 +23,10 @@ class TestFullV3Gate(unittest.TestCase):
     def test_reject_missing_source(self):
         with self.assertRaises(FileNotFoundError):
             plan(self.good,timestamp_unit="s",source_dir=self.folder/"absent")
+    def test_incomplete_daphnet_recording_set_fails(self):
+        (self.folder/"S17R01.txt").unlink()
+        with self.assertRaises(FileNotFoundError):
+            plan(self.good,timestamp_unit="s",source_dir=self.folder)
     def test_valid_gate_returns_scripts(self):
         self.assertEqual(len(plan(self.good,timestamp_unit="s",source_dir=self.folder)),3)
     def test_file_sha256_matches_content(self):
