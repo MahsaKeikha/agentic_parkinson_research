@@ -11,10 +11,11 @@ from sklearn.model_selection import GroupKFold
 
 from cross_dataset import load_daphnet, load_fogstar, metrics, new_model
 
-FS = 60.0
+TARGET_FS = 60.0
+SOURCE_FS = 64.0
 BANDS = ((0.5, 3.0), (3.0, 8.0), (8.0, 15.0))
 
-def spectral_features(samples):
+def spectral_features(samples, fs=TARGET_FS):
     samples = np.asarray(samples, dtype=float)
     if samples.ndim != 2 or samples.shape[1] != 3 or len(samples) < 4:
         raise ValueError("Expected a 3-axis time-series window")
@@ -23,7 +24,7 @@ def spectral_features(samples):
     magnitude = np.linalg.norm(samples, axis=1)
     centered = magnitude - magnitude.mean()
     window = np.hanning(len(centered))
-    freqs = np.fft.rfftfreq(len(centered), d=1 / FS)
+    freqs = np.fft.rfftfreq(len(centered), d=1 / fs)
     power = np.abs(np.fft.rfft(centered * window)) ** 2
     bands = [float(power[(freqs >= low) & (freqs < high)].sum())
              for low, high in BANDS]
@@ -59,7 +60,7 @@ def main():
     p.add_argument("--timestamp-unit", choices=["s", "ms"], required=True)
     p.add_argument("--out", type=Path, required=True)
     args = p.parse_args()
-    results = compare(load_daphnet(args.daphnet_dir, extractor=spectral_features),
+    results = compare(load_daphnet(args.daphnet_dir, extractor=lambda x: spectral_features(x, fs=SOURCE_FS)),
                       load_fogstar(args.fogstar_sensor_data,
                                    timestamp_unit=args.timestamp_unit,
                                    extractor=spectral_features))
