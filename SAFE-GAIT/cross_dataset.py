@@ -29,7 +29,7 @@ def three_axis_features(values):
                  np.sqrt(np.mean(differences ** 2)) if len(differences) else 0.0]
 
 
-def windows_from_run(time_seconds, acceleration_g, labels, subject, hz):
+def windows_from_run(time_seconds, acceleration_g, labels, subject, hz, extractor=three_axis_features):
     size, hop = int(round(2 * hz)), int(round(hz))
     features, outcomes, groups = [], [], []
     for start in range(0, len(labels) - size + 1, hop):
@@ -40,7 +40,7 @@ def windows_from_run(time_seconds, acceleration_g, labels, subject, hz):
         x = acceleration_g[start:start + size]
         if not np.isfinite(x).all():
             continue
-        features.append(three_axis_features(x))
+        features.append(extractor(x))
         outcomes.append(int(y[valid].mean() >= 0.5))
         groups.append(subject)
     return features, outcomes, groups
@@ -52,7 +52,7 @@ def split_runs(t, hz):
     return zip(starts, np.r_[starts[1:], len(t)])
 
 
-def load_daphnet(directory):
+def load_daphnet(directory, extractor=three_axis_features):
     features, labels, groups = [], [], []
     paths = sorted(directory.glob("S??R??.txt"))
     if not paths:
@@ -67,12 +67,12 @@ def load_daphnet(directory):
         # Annotation 0 is outside experiment; 1=no freeze; 2=freeze.
         y = np.where(data[:, 10] == 2, 1.0, np.where(data[:, 10] == 1, 0.0, np.nan))
         for begin, end in split_runs(t, hz):
-            a, b, c = windows_from_run(t[begin:end], x[begin:end], y[begin:end], sid, hz)
+            a, b, c = windows_from_run(t[begin:end], x[begin:end], y[begin:end], sid, hz, extractor=extractor)
             features.extend(a); labels.extend(b); groups.extend(c)
     return np.asarray(features), np.asarray(labels), np.asarray(groups)
 
 
-def load_fogstar(file, timestamp_unit='s'):
+def load_fogstar(file, timestamp_unit='s', extractor=three_axis_features):
     if timestamp_unit not in ('s', 'ms'):
         raise ValueError('timestamp_unit must be explicitly s or ms')
     d = pd.read_csv(file)
@@ -96,7 +96,7 @@ def load_fogstar(file, timestamp_unit='s'):
         x = block[cols].to_numpy(dtype=float)
         y = block["fog"].to_numpy(dtype=float)
         sid = int(block["subjectID"].iloc[0])
-        a, b, c = windows_from_run(times[begin:end], x, y, sid, 60)
+        a, b, c = windows_from_run(times[begin:end], x, y, sid, 60, extractor=extractor)
         features.extend(a); labels.extend(b); groups.extend(c)
     return np.asarray(features), np.asarray(labels), np.asarray(groups)
 
