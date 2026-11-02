@@ -136,6 +136,18 @@ def main():
         step.update({"status":"completed", "output":expected,
                      "output_sha256":file_sha256(output)})
         write_manifest(record_path,record)
+    uncertainty_command=[sys.executable,str(Path(__file__).with_name("clustered_event_uncertainty.py")),
+                         "--event-results",str((args.out / "cross_dataset_events.json").resolve()),
+                         "--out",str((args.out / "clustered_event_uncertainty.json").resolve())]
+    try:
+        subprocess.run(uncertainty_command,check=True)
+    except subprocess.CalledProcessError:
+        record["status"]="failed"
+        record["failure"]="clustered_event_uncertainty.py"
+        write_manifest(record_path,record)
+        raise
+    record["uncertainty_output"]="clustered_event_uncertainty.json"
+    record["uncertainty_sha256"]=file_sha256(args.out / "clustered_event_uncertainty.json")
     record["status"]="completed_exploratory"
     write_manifest(record_path,record)
     print("Exploratory analysis completed; do not treat results as independent validation.")
