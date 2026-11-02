@@ -49,6 +49,17 @@ class TestEventReplay(unittest.TestCase):
         with self.assertRaises(ValueError):
             target_blocks(pd.DataFrame(rows), timestamp_unit="s")
 
+    def test_invalid_label_only_block_does_not_crash(self):
+        rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
+                 "timestamp": i / 60, "fog": 2,
+                 "back_acc_x": 1., "back_acc_y": 0., "back_acc_z": 0.}
+                for i in range(60)]
+        blocks = target_blocks(pd.DataFrame(rows), timestamp_unit="s")
+        result = summarize_policy(blocks, FixedModel())["aggregate"]
+        self.assertEqual(result["reference_episodes"], 0)
+        self.assertEqual(result["exposure_seconds"], 0)
+        self.assertIsNone(result["false_alerts_per_hour"])
+
     def test_alerts_cannot_precede_window_completion(self):
         rows = [{"subjectID": 1, "sessionID": 1, "taskID": 1,
                  "timestamp": i / 60, "fog": int(i >= 60),
