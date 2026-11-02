@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from download_official_v3 import EXPECTED, RECORD_ID, parse_files, verified_download
+from download_official_v3 import EXPECTED, RECORD_ID, parse_files, verified_download, assert_private_destination, local_md5
 
 def record():
     return {"id": RECORD_ID, "files": [
@@ -12,6 +12,24 @@ def record():
     ]}
 
 class DownloaderTests(unittest.TestCase):
+    def test_reject_any_path_within_git_checkout(self):
+        with tempfile.TemporaryDirectory() as root:
+            base = Path(root)
+            (base / ".git").mkdir()
+            with self.assertRaises(ValueError):
+                assert_private_destination(base / "subfolder" / "data")
+
+    def test_allow_private_path_outside_git(self):
+        with tempfile.TemporaryDirectory() as root:
+            self.assertEqual(assert_private_destination(Path(root)), Path(root).resolve())
+
+    def test_streaming_existing_file_hash(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as root:
+            file = Path(root) / "sample.csv"
+            file.write_bytes(b"sample")
+            self.assertEqual(local_md5(file), hashlib.md5(b"sample").hexdigest())
+
     def test_official_metadata_accepted(self):
         self.assertEqual(set(parse_files(record())), set(EXPECTED))
 
