@@ -23,7 +23,13 @@ Wearable freezing-of-gait (FoG) classifiers may fail when deployment conditions 
 \ccsdesc[300]{Computing methodologies~Machine learning}
 \maketitle
 \section{Introduction}
-Wearable FoG detection and cueing have an established history \cite{bachlin2010}. Cross-dataset degradation has also been reported \cite{lin2026}. We examine whether simple failure-warning mechanisms recognize a documented transfer failure.
+Freezing of gait (FoG) is an episodic interruption of locomotion in Parkinson's disease. Wearable sensing is attractive for detecting episodes and potentially supporting timely intervention, but an offline classifier score does not directly quantify the consequences of missed episodes or nuisance alarms. Prior wearable approaches established the feasibility of FoG monitoring \cite{bachlin2010}; subsequent cross-dataset analyses have exposed substantial transfer limitations \cite{sigcha2024cross,lin2026}. A safety-relevant audit must ask not only whether samples are ranked correctly, but also whether actionable alerts overlap episodes, how often false alarms arise, and whether a failure warning itself correctly identifies unreliable operation.
+
+The distinction matters particularly under shift: a system can retain apparently reasonable source-domain discrimination yet fail at the target operating point, while a reject option reduces nuisance alerts simply by withholding predictions. A participant-level shift statistic can also change dramatically when its calibration reference consists of pooled overlapping windows rather than independent participants. These observations motivate an \emph{operational} audit, not a claim that a particular simple classifier is clinically suitable.
+
+We study a Daphnet-to-FoG-STAR transfer stress test with deliberately limited baselines. The contributions are: (1) an explicit, end-of-window event-accounting protocol that separates unmatched alerts, missed binary-label runs, and abstentions; (2) a diagnostic comparison of source-only distance rejection and score-distribution warning calibration units; and (3) a reproducibility and provenance specification that explicitly separates historical subset estimates from forthcoming full-release evaluation. The first two contributions currently have retrospective, subset-level evidence only; the third is a software protocol, not an additional clinical experiment.
+
+The primary research claim is correspondingly narrow: metrics suitable for assessing a classifier's ranking are insufficient to establish reliability of emitted event alerts, and a warning's calibration unit is integral to interpreting its flag rate. We do not claim a new FoG detector, a novel selective-classification algorithm, an uncertainty guarantee, or prospective safety benefit.
 \section{Related Work}
 Prior cross-dataset studies document limited generalization across FoG datasets \cite{sigcha2024cross}, while sensor placement, task protocols, and model choice affect detection performance \cite{borzi2025sensors}. A systematic review identifies continuing limitations in wearable FoG validation \cite{gregorcic2025review}. Reject-option classification is well established \cite{geifman2019}, as is the need to assess calibration \cite{guo2017}. We therefore do not claim invention of abstention, score drift, or external FoG testing. The contribution is a reproducible, bounded failure audit reporting event-level costs and warning calibration sensitivity.
 \section{Data and Provenance}
@@ -44,22 +50,28 @@ For score-shift warnings, a supremum empirical-CDF distance compares predicted-s
 Every prediction is issued at its window end. Historical replay represents an emitted positive prediction as a one-second alert interval. Raw contiguous positive-label runs are reference events under the stated implementation, and one-to-one matching uses maximum-cardinality bipartite assignment under interval overlap, without temporal tolerance or alert merging. The revised assignment has not yet been applied to the historical raw target data. In the corrected implementation, the numerator for event sensitivity is the number of matched reference runs, and the denominator includes all annotated runs, including short segments with no scorable windows. Historical counts presented below have not yet been recomputed using that correction. False-alert burden is unmatched alert runs divided by annotated recording hours. A protocol-sensitivity study will vary the alert hold duration and matching tolerance before any stronger event-level inference.
 
 \subsection{Inference and reporting}
-Because adjacent windows overlap and observations are clustered by participant, independent-window standard errors are inappropriate. Descriptive bootstrap resampling is performed at participant level; uncertainty estimates are interpreted cautiously with only nine target participants. We separate source fold means, target discrimination, target fixed-threshold event sensitivity, abstention coverage and warning counts rather than combining them into a single safety score.
+Because adjacent windows overlap and observations are clustered by participant, independent-window standard errors are inappropriate. A previous exploratory participant bootstrap was run for target AUROC, but a complete, frozen participant-level uncertainty analysis has not been rerun for the current event protocol. Such intervals will remain descriptive with only nine historically inspected target participants. We separate source fold means, target discrimination, target fixed-threshold event sensitivity, abstention coverage and warning counts rather than combining them into a single safety score.
+\subsection{Required model and operating-point comparators}
+The historical comparison is restricted to an axis-sensitive time-domain representation and a three-feature magnitude representation using histogram gradient boosting. These are stress-test baselines, not representative evidence for state-of-the-art FoG detection. A full comparison should add a published or faithfully reconstructed frequency-based FoG baseline, a stronger contemporary classifier, and a source-only threshold sweep. Every model must share the same target inclusion policy and evaluation clock. If a comparator cannot be reconstructed with its original filtering, placement, and normalization assumptions, it must be labeled as an adaptation rather than an exact replication. No quantitative superiority claims are made for these unrun comparators.
+
+\subsection{Uncertainty and missingness protocol}
+Subject-level resampling is the inferential unit for a participant-generalization claim. For a bootstrap replicate, draw participants with replacement, preserving all windows and event blocks within each selected participant. Recompute pooled event numerators and exposure denominators for each replicate rather than treating overlapping windows as independent samples. Undefined AUROC on single-class samples and undefined event recall for zero-event participants must remain missing, with the number of evaluable replicates stated. The choice of interval construction and the original pseudo-random seed belong in the released experiment manifest. For sparse event outcomes, report raw subject-level counts alongside any interval; do not present an unstable nominal confidence interval as clinical certainty.
 \section{Exploratory Results}
 \begin{table}[t]
-\caption{Retrospective subset study, not a full-v3 evaluation.}
+\caption{Existing historical subset estimates; current event-matching code has not been rerun on raw target data. AUROC is window-level discrimination, whereas matching counts are from the original alert replay.}
 \label{tab:results}
 \centering
 \begin{tabular}{lcc}
 \toprule
-Classifier & Target AUROC & Event detection\\
+Classifier & Target AUROC & Historical matches\\
 \midrule
-Axis-dependent & 0.349 & Not assessed here\\
-Magnitude-only & 0.354 & 0/28\\
-Magnitude + abstention & --- & 0/28\\
+Axis-dependent & 0.349 & Not evaluated\\
+Magnitude-only & 0.354 & 0/28 label-runs\\
+Magnitude + abstention & Not reported & 0/28 label-runs\\
 \bottomrule
 \end{tabular}
 \end{table}
+
 The magnitude-only model produced six unmatched alerts (9.03 per recorded hour), versus five (7.52/hour) after abstention at selected source-retention settings. No reference runs were matched under the historical replay convention. Pooled calibration flagged 6/9 target participants; individual-participant calibration flagged 1/9.
 \section{Discussion}
 \subsection{Source discrimination is not deployment reliability}
