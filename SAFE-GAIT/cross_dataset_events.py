@@ -82,7 +82,12 @@ def summarize_policy(blocks, model, gate=None):
         else:
             accepted = np.empty(0, dtype=bool)
             alerts = []
-        result = event_summary(block["reference"], alerts, block["exposure_seconds"])
+        if block["exposure_seconds"] > 0:
+            result = event_summary(block["reference"], alerts, block["exposure_seconds"])
+        else:
+            if block["reference"] or alerts:
+                raise ValueError("Zero exposure with events or alerts")
+            result = {"event_tp": 0, "event_fn": 0, "event_fp": 0}
         row = {"reference_episodes": len(block["reference"]),
                "event_tp": result["event_tp"], "event_fn": result["event_fn"],
                "event_fp": result["event_fp"], "alerts": len(alerts),
