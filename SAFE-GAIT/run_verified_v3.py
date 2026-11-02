@@ -51,6 +51,7 @@ OUTPUT_MAP = {
     "cross_dataset.py": "cross_dataset_shift.json",
     "cross_dataset_invariant.py": "cross_dataset_invariant.json",
     "cross_dataset_events.py": "cross_dataset_events.json",
+    "frequency_comparator.py": "frequency_comparator.json",
 }
 
 def require_clean_outputs(out_dir, pipeline):
@@ -74,7 +75,8 @@ def plan(report, *, timestamp_unit, source_dir):
     return [
         "cross_dataset.py",
         "cross_dataset_invariant.py",
-        "cross_dataset_events.py"
+        "cross_dataset_events.py",
+        "frequency_comparator.py"
     ]
 
 def main():
