@@ -38,6 +38,21 @@ def parse_files(record):
         raise ValueError(f"Official files missing: {set(EXPECTED) - set(found)}")
     return found
 
+def assert_private_destination(destination):
+    """Prevent accidental raw participant-data downloads anywhere inside git."""
+    target = destination.resolve()
+    for ancestor in (target, *target.parents):
+        if (ancestor / ".git").exists():
+            raise ValueError("Destination is inside a Git repository: choose a private directory")
+    return target
+
+def local_md5(path):
+    digest = hashlib.md5()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
 def fetch_json(url):
     with urllib.request.urlopen(url, timeout=45) as response:
         return json.load(response)
@@ -66,13 +81,15 @@ def main():
     p.add_argument("--destination", type=Path, required=True,
                    help="Private data directory OUTSIDE git repository")
     args = p.parse_args()
-    if args.destination.resolve().is_relative_to(Path(__file__).resolve().parent):
-        p.error("Destination must be outside SAFE-GAIT repository folder")
+    try:
+        assert_private_destination(args.destination)
+    except ValueError as exc:
+        p.error(str(exc))
     files = parse_files(fetch_json(API_URL))
     for name, url in files.items():
         dest = args.destination / name
         if dest.exists():
-            digest = hashlib.md5(dest.read_bytes()).hexdigest()
+            digest = local_md5(dest)
             if digest != EXPECTED[name]:
                 raise SystemExit(f"Refusing existing file with wrong checksum: {dest}")
             print(f"Already verified: {dest}")
