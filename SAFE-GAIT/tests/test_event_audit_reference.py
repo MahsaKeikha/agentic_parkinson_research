@@ -52,3 +52,46 @@ def test_tolerance_changes_matching():
     e, a = [(1, 2)], [(2.2, 2.2)]
     assert not audit_module.maximum_matching(e, a, 0)
     assert len(audit_module.maximum_matching(e, a, 0.25)) == 1
+
+
+def test_overlapping_positive_windows_are_one_alert_run():
+    result = audit_module.audit({
+        "events": [[2.1, 2.8]],
+        "windows": [
+            {"end_s": 2, "positive": True},
+            {"end_s": 2.5, "positive": True},
+            {"end_s": 3, "positive": True},
+        ],
+        "recording_hours": 1,
+        "alert_hold_s": 1,
+    })
+    assert result["alert_count"] == 1
+    assert result["matched_event_count"] == 1
+    assert result["unmatched_alert_count"] == 0
+
+
+def test_disjoint_alert_runs_remain_separate():
+    result = audit_module.audit({
+        "events": [],
+        "windows": [
+            {"end_s": 2, "positive": True},
+            {"end_s": 5, "positive": True},
+        ],
+        "recording_hours": 2,
+        "alert_hold_s": 1,
+    })
+    assert result["alert_count"] == 2
+    assert result["unmatched_alerts_per_hour"] == 1
+
+
+def test_touching_alert_intervals_merge():
+    result = audit_module.audit({
+        "events": [],
+        "windows": [
+            {"end_s": 2, "positive": True},
+            {"end_s": 3, "positive": True},
+        ],
+        "recording_hours": 1,
+        "alert_hold_s": 1,
+    })
+    assert result["alert_count"] == 1
