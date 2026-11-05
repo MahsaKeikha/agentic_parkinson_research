@@ -83,11 +83,11 @@ def audit(payload):
             abstained += 1
         elif w["positive"]:
             alerts.append((end, end + hold))
-    matches = maximum_matching(events, alerts, tol)
+    # Merge overlapping/touching positive alert holds into alert *runs* before\n    # one-to-one matching. Individual positive windows are not independent alarms.\n    alerts.sort(key=lambda interval: (interval[0], interval[1]))\n    merged = []\n    for start, stop in alerts:\n        if merged and start <= merged[-1][1]:\n            merged[-1] = (merged[-1][0], max(merged[-1][1], stop))\n        else:\n            merged.append((start, stop))\n    alerts = merged\n    matches = maximum_matching(events, alerts, tol)
     unmatched = len(alerts) - len(matches)
     return {
         "reference_event_count": len(events),
-        "alert_count": len(alerts),
+        "alert_count": len(alerts),\n        "alert_count_definition": "merged contiguous or overlapping emitted alert intervals",
         "matched_event_count": len(matches),
         "missed_event_count": len(events) - len(matches),
         "unmatched_alert_count": unmatched,
