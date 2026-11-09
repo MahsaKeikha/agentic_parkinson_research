@@ -87,7 +87,8 @@ def audit(payload):
     unmatched = len(alerts) - len(matches)
     return {
         "reference_event_count": len(events),
-        "alert_count": len(alerts),\n        "alert_count_definition": "merged contiguous or overlapping emitted alert intervals",
+        "alert_count": len(alerts),
+        "alert_count_definition": "merged contiguous or overlapping emitted alert intervals",
         "matched_event_count": len(matches),
         "missed_event_count": len(events) - len(matches),
         "unmatched_alert_count": unmatched,
