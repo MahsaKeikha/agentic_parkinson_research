@@ -73,10 +73,17 @@ def audit(payload):
     hours = _finite_nonnegative(payload["recording_hours"], "recording_hours")
     if hours == 0:
         raise ValueError("recording_hours must be positive")
+    # A single audit payload represents one continuous recording, never a cohort.
+    # Check the observation clock to avoid silently undercounting exposure.
+    duration_s = hours * 3600.0
+    if any(end > duration_s for _, end in events):
+        raise ValueError("reference event exceeds recording exposure")
     alerts = []
     abstained = 0
     for w in payload["windows"]:
         end = _finite_nonnegative(w["end_s"], "window end_s")
+        if end > duration_s:
+            raise ValueError("window end exceeds recording exposure")
         if not isinstance(w.get("positive"), bool) or not isinstance(w.get("abstain", False), bool):
             raise ValueError("positive and abstain must be boolean")
         if w.get("abstain", False):
