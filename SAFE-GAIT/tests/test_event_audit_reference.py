@@ -95,3 +95,15 @@ def test_touching_alert_intervals_merge():
         "alert_hold_s": 1,
     })
     assert result["alert_count"] == 1
+
+
+def test_event_outside_recording_exposure_rejected():
+    with pytest.raises(ValueError, match="event exceeds recording exposure"):
+        audit_module.audit({"events": [[3599, 3601]], "windows": [],
+                            "recording_hours": 1})
+
+
+def test_window_outside_recording_exposure_rejected():
+    with pytest.raises(ValueError, match="window end exceeds recording exposure"):
+        audit_module.audit({"events": [], "windows": [
+            {"end_s": 3601, "positive": False}], "recording_hours": 1})
