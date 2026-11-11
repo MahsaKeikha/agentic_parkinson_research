@@ -18,7 +18,7 @@ _module = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_module)
 
 
-def sensitivity_grid(recordings, hold_seconds=(0.0, 1.0, 2.0),
+def sensitivity_grid(recordings, hold_seconds=(0.0, 0.25, 1.0),
                      tolerance_seconds=(0.0, 0.5, 1.0)):
     if not isinstance(recordings, list) or not recordings:
         raise ValueError("nonempty recordings required")
