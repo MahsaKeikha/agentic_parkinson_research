@@ -22,12 +22,9 @@ API = "https://zenodo.org/api/records/17838806"
 RECORD = "https://zenodo.org/records/17838806"
 REQUIRED = {"sensor_data.csv", "clinical_data.csv", "README.txt"}
 MAX_FILE_BYTES = 500_000_000
-# Independently transcribed from the official v3 Zenodo record (not API metadata).
-PINNED_V3_MD5 = {
-    "sensor_data.csv": "952a37ab147da35e6d4e7a1e9bac44cb",
-    "clinical_data.csv": "8b9a2339c8fcb8eaa470bcb1784d31c5",
-    "README.txt": "5b424641b0fcf2780037c0e9e838ae10",
-}
+# No independent hash pin is asserted until it is verified from the publisher.
+# Zenodo API checksums are checked against downloaded bytes, but are not an
+# independent trust anchor. An external signed/archived pin is still needed.
 
 
 def digest_file(path, algorithm):
@@ -59,8 +56,6 @@ def acquire(root, metadata=None):
         expected = item.get("checksum", "")
         if not expected.startswith("md5:") or len(expected) != 36:
             raise ValueError(f"{name}: authoritative MD5 missing")
-        if expected[4:].lower() != PINNED_V3_MD5[name]:
-            raise ValueError(f"{name}: Zenodo metadata differs from independently pinned v3 checksum")
         expected_bytes = item.get("size")
         if (isinstance(expected_bytes, bool) or not isinstance(expected_bytes, int)
                 or not 0 < expected_bytes <= MAX_FILE_BYTES):
@@ -96,7 +91,7 @@ def acquire(root, metadata=None):
                 "record_doi": metadata.get("doi"),
                 "retrieved_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "files": entries,
-                "provenance_status": "PUBLISHER_MD5_MATCHED; INDEPENDENT_REVIEW_PENDING"}
+                "provenance_status": "ZENODO_API_MD5_MATCHED; INDEPENDENT_HASH_PIN_PENDING"}
     output = root / "fogstar_v3_acquisition_manifest.json"
     output.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
