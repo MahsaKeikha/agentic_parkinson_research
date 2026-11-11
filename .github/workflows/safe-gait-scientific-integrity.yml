@@ -29,7 +29,7 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install pytest
       - name: Test causal event matching and fail-closed readiness
-        run: python -m pytest -q SAFE-GAIT/tests/test_event_audit_reference.py SAFE-GAIT/tests/test_scientific_readiness_gate.py SAFE-GAIT/tests/test_verify_v3_manifest.py
+        run: python -m pytest -q SAFE-GAIT/tests/test_event_audit_reference.py SAFE-GAIT/tests/test_scientific_readiness_gate.py SAFE-GAIT/tests/test_verify_v3_manifest.py SAFE-GAIT/tests/test_participant_event_audit.py
       - name: Confirm absent evidence is blocked
         shell: bash
         run: |
