@@ -65,3 +65,18 @@ def test_exposure_weighted_not_session_mean():
                session("p2", "b", [], [], hours=3)]
     result = module.audit_cohort(records)
     assert result["pooled"]["unmatched_alerts_per_hour"] == 0.25
+
+
+def test_primary_participant_macro_differs_from_pooled_event_recall():
+    records = [session("p1", "a", [[2, 3]], [2]),
+               session("p2", "a", [[2, 3], [5, 6], [8, 9]], [])]
+    result = module.audit_cohort(records, bootstrap_replicates=50, seed=4)
+    assert result["pooled"]["event_recall"] == 0.25
+    assert result["participant_macro_event_recall"] == 0.5
+    assert result["participant_bootstrap"]["evaluable_participant_macro_recall"] == 50
+
+
+def test_no_events_means_macro_recall_undefined():
+    result = module.audit_cohort([session("p1", "a", [], [])], bootstrap_replicates=10)
+    assert result["participant_macro_event_recall"] is None
+    assert result["participant_bootstrap"]["participant_macro_recall_percentile_95"] is None
