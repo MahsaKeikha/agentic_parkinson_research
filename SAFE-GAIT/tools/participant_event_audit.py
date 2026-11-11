@@ -72,16 +72,29 @@ def audit_cohort(recordings, bootstrap_replicates=0, seed=2026):
         for p in participants
     }
     pooled = _aggregate(per_recording)
+    # Primary estimand from frozen protocol: participant-macro recall.
+    # Participants with zero reference events have undefined recall and are excluded,
+    # never silently assigned a perfect score or zero.
+    def macro_recall(groups):
+        values = [row["event_recall"] for row in groups if row["event_recall"] is not None]
+        return sum(values) / len(values) if values else None
+
+    primary_macro = macro_recall(grouped.values())
     bootstrap = {"replicates_requested": bootstrap_replicates, "seed": seed,
                  "unit": "participant", "evaluable_event_recall": 0,
                  "evaluable_false_alert_rate": 0, "event_recall_percentile_95": None,
+                 "participant_macro_recall_percentile_95": None,
+                 "evaluable_participant_macro_recall": 0,
                  "unmatched_alerts_per_hour_percentile_95": None}
     if bootstrap_replicates:
         rng = random.Random(seed)
-        recall_samples, rate_samples = [], []
+        recall_samples, rate_samples, macro_samples = [], [], []
         for _ in range(bootstrap_replicates):
             draws = [grouped[rng.choice(participants)] for _ in participants]
             sampled = _aggregate(draws)
+            macro = macro_recall(draws)
+            if macro is not None:
+                macro_samples.append(macro)
             if sampled["event_recall"] is not None:
                 recall_samples.append(sampled["event_recall"])
             if sampled["unmatched_alerts_per_hour"] is not None:
@@ -101,13 +114,16 @@ def audit_cohort(recordings, bootstrap_replicates=0, seed=2026):
 
         bootstrap.update({
             "evaluable_event_recall": len(recall_samples),
+            "evaluable_participant_macro_recall": len(macro_samples),
+            "participant_macro_recall_percentile_95": percentile_interval(macro_samples),
             "evaluable_false_alert_rate": len(rate_samples),
             "event_recall_percentile_95": percentile_interval(recall_samples),
             "unmatched_alerts_per_hour_percentile_95": percentile_interval(rate_samples),
         })
     return {"recording_count": len(per_recording), "participant_count": len(participants),
             "per_recording": per_recording, "per_participant": grouped,
-            "pooled": pooled, "participant_bootstrap": bootstrap,
+            "pooled": pooled, "participant_macro_event_recall": primary_macro,
+            "participant_bootstrap": bootstrap,
             "limitations": "Descriptive cluster bootstrap; no clinical safety or population guarantee"}
 
 
