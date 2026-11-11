@@ -1,0 +1,58 @@
+name: SAFE-GAIT Official FoG-STAR v3 Acquisition Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [safe-gait-research]
+    paths:
+      - 'SAFE-GAIT/tools/acquire_fogstar_v3.py'
+      - 'SAFE-GAIT/tools/audit_fogstar_v3_csv.py'
+      - '.github/workflows/safe-gait-v3-acquisition.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Acquire official Zenodo record and validate publisher checksums
+        run: |
+          mkdir -p "$RUNNER_TEMP/fogstar-v3"
+          python SAFE-GAIT/tools/acquire_fogstar_v3.py --data-root "$RUNNER_TEMP/fogstar-v3"
+      - name: Audit CSV schema, participants, and binary-label runs
+        run: |
+          python SAFE-GAIT/tools/audit_fogstar_v3_csv.py \
+            --data-root "$RUNNER_TEMP/fogstar-v3" \
+            --output "$RUNNER_TEMP/fogstar-v3/fogstar_v3_structure_audit.json"
+      - name: Publish integrity summary
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          root = pathlib.Path(os.environ["RUNNER_TEMP"]) / "fogstar-v3"
+          manifest = json.loads((root / "fogstar_v3_acquisition_manifest.json").read_text())
+          audit = json.loads((root / "fogstar_v3_structure_audit.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write("## Official FoG-STAR v3 acquisition audit\n\n")
+              out.write(f"Publisher checksum status: {manifest['provenance_status']}\n\n")
+              out.write(f"Sensor rows observed: {audit['sensor_rows_observed']}\n\n")
+              out.write(f"Sensor participants observed: {audit['sensor_participants_observed']}\n\n")
+              out.write("**This job does not validate expert-episode correspondence, model performance, or submission readiness.**\n")
+          if not audit["row_count_matches_publication"] or not audit["participant_count_matches_publication"]:
+              raise SystemExit("Published dataset counts do not match; manual investigation required")
+          PY
+      - name: Upload audit reports only (not raw clinical or sensor data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fogstar-v3-acquisition-audit
+          path: |
+            ${{ runner.temp }}/fogstar-v3/fogstar_v3_acquisition_manifest.json
+            ${{ runner.temp }}/fogstar-v3/fogstar_v3_structure_audit.json
+          if-no-files-found: warn
+          retention-days: 30
